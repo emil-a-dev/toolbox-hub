@@ -80,6 +80,36 @@ l.parentNode.insertBefore(s, l);
 })({})`
           }}
         />
+        {/* HilltopAds mobile-only ad zone */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(qjgk){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = qjgk || {};
+s.src = "//zany-aside.com/bLXBVcsBd.G-lJ0pY/WYcW/pe/m/9ZuLZrUJlGkjPtTiYK4iMVDzMT2qM/zqc/tpN/j/gdwgMUzqYH0/MXQc";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})`
+          }}
+        />
+        {/* HilltopAds desktop-only ad zone */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(bu){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = bu || {};
+s.src = "//zany-aside.com/b/XvVNs.dMGjlG0gYiWrcj/XeXmi9ZubZrUZl/kdPzT/Yu4-MEDtMK2CN/DOkXt_NnjvgCw/MNzAY/1NMvwo";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})`
+          }}
+        />
       </head>
       <body className="min-h-screen flex flex-col pb-[130px] sm:pb-0">
         <LanguageProvider>
