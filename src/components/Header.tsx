@@ -2,10 +2,14 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Wrench, Menu, X, Github } from 'lucide-react';
+import { Wrench, Menu, X, Github, Languages } from 'lucide-react';
+import { useLanguage } from '@/components/LanguageProvider';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const { locale, setLocale, t } = useLanguage();
+
+  const toggleLocale = () => setLocale(locale === 'en' ? 'ru' : 'en');
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-lg">
@@ -22,45 +26,61 @@ export function Header() {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
           <Link href="/#text" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
-            Text Tools
+            {t('nav.textTools')}
           </Link>
           <Link href="/#dev" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
-            Developer
+            {t('nav.developer')}
           </Link>
           <Link href="/#security" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
-            Security
+            {t('nav.security')}
           </Link>
           <Link href="/#utility" className="text-sm text-gray-600 hover:text-primary-600 transition-colors">
-            Utilities
+            {t('nav.utilities')}
           </Link>
+          <button
+            onClick={toggleLocale}
+            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary-600 transition-colors"
+            title={locale === 'en' ? 'Переключить на русский' : 'Switch to English'}
+          >
+            <Languages size={18} />
+            <span className="uppercase font-medium">{locale}</span>
+          </button>
           <a href="https://github.com/emil-a-dev" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary-600 transition-colors">
             <Github size={18} />
           </a>
         </nav>
 
         {/* Mobile menu toggle */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100"
-        >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            onClick={toggleLocale}
+            className="p-2 rounded-lg hover:bg-gray-100 text-sm font-medium text-gray-600 uppercase"
+          >
+            {locale === 'en' ? 'RU' : 'EN'}
+          </button>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 rounded-lg hover:bg-gray-100"
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile nav */}
       {isOpen && (
         <nav className="md:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-3 animate-fade-in">
           <Link href="/#text" onClick={() => setIsOpen(false)} className="block text-sm text-gray-600 hover:text-primary-600">
-            Text Tools
+            {t('nav.textTools')}
           </Link>
           <Link href="/#dev" onClick={() => setIsOpen(false)} className="block text-sm text-gray-600 hover:text-primary-600">
-            Developer
+            {t('nav.developer')}
           </Link>
           <Link href="/#security" onClick={() => setIsOpen(false)} className="block text-sm text-gray-600 hover:text-primary-600">
-            Security
+            {t('nav.security')}
           </Link>
           <Link href="/#utility" onClick={() => setIsOpen(false)} className="block text-sm text-gray-600 hover:text-primary-600">
-            Utilities
+            {t('nav.utilities')}
           </Link>
           <a href="https://github.com/emil-a-dev" target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary-600">
             <Github size={16} /> GitHub

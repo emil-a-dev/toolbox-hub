@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useMemo } from 'react';
 import {
   Type, CaseSensitive, FileText, GitCompare, Eye,
   Braces, Binary, Link, Hash, Fingerprint,
@@ -17,14 +20,33 @@ import {
   Receipt, CheckSquare, Wallet, Users,
   Keyboard, MousePointer, Monitor, UserCheck, SmilePlus,
   FileJson, Table, FileType, Brackets,
+  Search as SearchIcon, X,
 } from 'lucide-react';
 import { ToolCard } from '@/components/ToolCard';
+import { useLanguage } from '@/components/LanguageProvider';
+import type { TranslationKey } from '@/lib/translations';
+import type { LucideIcon } from 'lucide-react';
 
-const categories = [
+interface ToolDef {
+  title: string;
+  description: string;
+  href: string;
+  icon: LucideIcon;
+  badge?: string;
+}
+
+interface CategoryDef {
+  id: string;
+  titleKey: TranslationKey;
+  descKey: TranslationKey;
+  tools: ToolDef[];
+}
+
+const categories: CategoryDef[] = [
   {
     id: 'text',
-    title: '📝 Text Tools',
-    description: 'Analyze, transform, and generate text',
+    titleKey: 'cat.text',
+    descKey: 'cat.text.desc',
     tools: [
       { title: 'Word Counter', description: 'Count words, characters, sentences, and paragraphs', href: '/tools/word-counter', icon: Type },
       { title: 'Case Converter', description: 'Convert text to uppercase, lowercase, title case & more', href: '/tools/case-converter', icon: CaseSensitive },
@@ -41,8 +63,8 @@ const categories = [
   },
   {
     id: 'dev',
-    title: '💻 Developer Tools',
-    description: 'Essential tools for developers',
+    titleKey: 'cat.dev',
+    descKey: 'cat.dev.desc',
     tools: [
       { title: 'JSON Formatter', description: 'Format, validate, and minify JSON data', href: '/tools/json-formatter', icon: Braces, badge: 'Popular' },
       { title: 'Base64 Encoder/Decoder', description: 'Encode and decode Base64 strings', href: '/tools/base64-encoder', icon: Binary },
@@ -60,8 +82,8 @@ const categories = [
   },
   {
     id: 'security',
-    title: '🔒 Security & Privacy',
-    description: 'Password and security utilities',
+    titleKey: 'cat.security',
+    descKey: 'cat.security.desc',
     tools: [
       { title: 'Password Generator', description: 'Generate strong, random passwords', href: '/tools/password-generator', icon: KeyRound, badge: 'Popular' },
       { title: 'Password Strength Checker', description: 'Check how strong your password is', href: '/tools/password-strength', icon: ShieldCheck },
@@ -72,8 +94,8 @@ const categories = [
   },
   {
     id: 'web',
-    title: '🌐 Web & SEO',
-    description: 'Tools for web developers and SEO',
+    titleKey: 'cat.web',
+    descKey: 'cat.web.desc',
     tools: [
       { title: 'Meta Tag Generator', description: 'Generate HTML meta tags for SEO', href: '/tools/meta-tag-generator', icon: Tags },
       { title: 'Robots.txt Generator', description: 'Create robots.txt for search engines', href: '/tools/robots-txt-generator', icon: Bot },
@@ -85,8 +107,8 @@ const categories = [
   },
   {
     id: 'converters',
-    title: '🔄 Math & Converters',
-    description: 'Calculators and unit converters',
+    titleKey: 'cat.converters',
+    descKey: 'cat.converters.desc',
     tools: [
       { title: 'Unit Converter', description: 'Convert between length, weight, temperature & more', href: '/tools/unit-converter', icon: Scale },
       { title: 'Number Base Converter', description: 'Convert between binary, hex, decimal, octal', href: '/tools/number-base', icon: Binary },
@@ -97,8 +119,8 @@ const categories = [
   },
   {
     id: 'media',
-    title: '🖼 Media & Files',
-    description: 'Image and file processing tools',
+    titleKey: 'cat.media',
+    descKey: 'cat.media.desc',
     tools: [
       { title: 'Image to Base64', description: 'Convert images to Base64 data URIs', href: '/tools/image-to-base64', icon: Image },
       { title: 'SVG to PNG', description: 'Convert SVG files to PNG images', href: '/tools/svg-to-png', icon: Download },
@@ -109,8 +131,8 @@ const categories = [
   },
   {
     id: 'content',
-    title: '✍️ Content & Writing',
-    description: 'Tools for writers and content creators',
+    titleKey: 'cat.content',
+    descKey: 'cat.content.desc',
     tools: [
       { title: 'Title Case Converter', description: 'Capitalize titles following proper rules', href: '/tools/title-case', icon: Heading },
       { title: 'Plagiarism Hash', description: 'Generate content fingerprints for plagiarism checking', href: '/tools/plagiarism-hash', icon: Search },
@@ -122,8 +144,8 @@ const categories = [
   },
   {
     id: 'design',
-    title: '🎨 Design & CSS',
-    description: 'CSS generators and design utilities',
+    titleKey: 'cat.design',
+    descKey: 'cat.design.desc',
     tools: [
       { title: 'Color Picker', description: 'Pick colors and convert HEX, RGB, HSL', href: '/tools/color-picker', icon: Palette, badge: 'Popular' },
       { title: 'Gradient Generator', description: 'Create beautiful CSS gradients', href: '/tools/gradient-generator', icon: PaintBucket },
@@ -138,8 +160,8 @@ const categories = [
   },
   {
     id: 'crypto',
-    title: '🔐 Crypto & Encoding',
-    description: 'Encoding, encryption and cipher tools',
+    titleKey: 'cat.crypto',
+    descKey: 'cat.crypto.desc',
     tools: [
       { title: 'Morse Code', description: 'Translate text to Morse code and back', href: '/tools/morse-code', icon: MessageSquare },
       { title: 'ROT13 Encoder', description: 'Apply ROT13 letter substitution cipher', href: '/tools/rot13', icon: RotateCcw },
@@ -151,8 +173,8 @@ const categories = [
   },
   {
     id: 'science',
-    title: '🔬 Math & Science',
-    description: 'Scientific calculators and math tools',
+    titleKey: 'cat.science',
+    descKey: 'cat.science.desc',
     tools: [
       { title: 'Scientific Calculator', description: 'Advanced calculator with scientific functions', href: '/tools/scientific-calculator', icon: Calculator },
       { title: 'Matrix Calculator', description: 'Perform matrix operations', href: '/tools/matrix-calculator', icon: Grid3X3 },
@@ -164,8 +186,8 @@ const categories = [
   },
   {
     id: 'productivity',
-    title: '📊 Productivity',
-    description: 'Productivity and tracking tools',
+    titleKey: 'cat.productivity',
+    descKey: 'cat.productivity.desc',
     tools: [
       { title: 'Invoice Generator', description: 'Create and print professional invoices', href: '/tools/invoice-generator', icon: Receipt },
       { title: 'Lorem Picsum', description: 'Generate placeholder images with custom sizes', href: '/tools/lorem-picsum', icon: Image },
@@ -177,8 +199,8 @@ const categories = [
   },
   {
     id: 'fun',
-    title: '🎮 Fun & Games',
-    description: 'Fun tools, tests and games',
+    titleKey: 'cat.fun',
+    descKey: 'cat.fun.desc',
     tools: [
       { title: 'Random Number Generator', description: 'Generate random numbers with options', href: '/tools/random-number', icon: Shuffle },
       { title: 'Coin Flip & Dice', description: 'Flip coins and roll dice', href: '/tools/coin-dice', icon: Dice1 },
@@ -192,8 +214,8 @@ const categories = [
   },
   {
     id: 'data',
-    title: '📦 Data Converters',
-    description: 'Convert between data formats',
+    titleKey: 'cat.data',
+    descKey: 'cat.data.desc',
     tools: [
       { title: 'JSON to CSV', description: 'Convert JSON arrays to CSV format', href: '/tools/json-to-csv', icon: Table },
       { title: 'CSV to JSON', description: 'Convert CSV data to JSON arrays', href: '/tools/csv-to-json', icon: FileJson },
@@ -205,8 +227,8 @@ const categories = [
   },
   {
     id: 'utility',
-    title: '🛠 Utilities',
-    description: 'Handy everyday tools',
+    titleKey: 'cat.utility',
+    descKey: 'cat.utility.desc',
     tools: [
       { title: 'QR Code Generator', description: 'Generate QR codes for any text or URL', href: '/tools/qr-code-generator', icon: QrCode, badge: 'Popular' },
       { title: 'Timestamp Converter', description: 'Convert between Unix timestamps and dates', href: '/tools/timestamp-converter', icon: Clock },
@@ -217,39 +239,97 @@ const categories = [
 const totalTools = categories.reduce((a, c) => a + c.tools.length, 0);
 
 export default function HomePage() {
+  const { t } = useLanguage();
+  const [query, setQuery] = useState('');
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return categories;
+    const q = query.toLowerCase();
+    return categories
+      .map((cat) => ({
+        ...cat,
+        tools: cat.tools.filter(
+          (tool) =>
+            tool.title.toLowerCase().includes(q) ||
+            tool.description.toLowerCase().includes(q),
+        ),
+      }))
+      .filter((cat) => cat.tools.length > 0);
+  }, [query]);
+
+  const matchCount = filtered.reduce((a, c) => a + c.tools.length, 0);
+
   return (
     <div className="animate-fade-in">
       {/* Hero */}
       <section className="text-center py-12 md:py-20">
         <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-4 leading-tight">
-          Free Online <span className="bg-gradient-to-r from-primary-600 to-blue-500 bg-clip-text text-transparent">Tools</span>
+          {t('hero.title1')}
+          <span className="bg-gradient-to-r from-primary-600 to-blue-500 bg-clip-text text-transparent">
+            {t('hero.title2')}
+          </span>
         </h1>
         <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-8">
-          {totalTools}+ free tools that work right in your browser. No registration, no uploads, no tracking. Fast & private.
+          {t('hero.subtitle', { count: totalTools })}
         </p>
-        <div className="flex flex-wrap justify-center gap-3 text-sm">
-          <span className="badge bg-emerald-50 text-emerald-700 !px-3 !py-1.5">✅ 100% Free</span>
-          <span className="badge bg-blue-50 text-blue-700 !px-3 !py-1.5">🔒 Client-side</span>
-          <span className="badge bg-purple-50 text-purple-700 !px-3 !py-1.5">⚡ No Registration</span>
-          <span className="badge bg-orange-50 text-orange-700 !px-3 !py-1.5">📱 PWA Ready</span>
+        <div className="flex flex-wrap justify-center gap-3 text-sm mb-10">
+          <span className="badge bg-emerald-50 text-emerald-700 !px-3 !py-1.5">{t('hero.badge.free')}</span>
+          <span className="badge bg-blue-50 text-blue-700 !px-3 !py-1.5">{t('hero.badge.client')}</span>
+          <span className="badge bg-purple-50 text-purple-700 !px-3 !py-1.5">{t('hero.badge.noReg')}</span>
+          <span className="badge bg-orange-50 text-orange-700 !px-3 !py-1.5">{t('hero.badge.pwa')}</span>
         </div>
+
+        {/* Search */}
+        <div className="max-w-xl mx-auto relative">
+          <SearchIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('search.placeholder')}
+            className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow text-base"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+        {query && (
+          <p className="mt-3 text-sm text-gray-500">
+            {matchCount === 0
+              ? t('search.noResults', { query })
+              : t('search.results', { count: matchCount })}
+          </p>
+        )}
       </section>
 
-      {/* Quick Nav */}
-      <section className="mb-10">
-        <div className="flex flex-wrap justify-center gap-2">
-          {categories.map(cat => (
-            <a key={cat.id} href={`#${cat.id}`} className="px-3 py-1.5 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-700 transition-colors">{cat.title}</a>
-          ))}
-        </div>
-      </section>
+      {/* Quick Nav (hidden during search) */}
+      {!query && (
+        <section className="mb-10">
+          <div className="flex flex-wrap justify-center gap-2">
+            {categories.map((cat) => (
+              <a
+                key={cat.id}
+                href={`#${cat.id}`}
+                className="px-3 py-1.5 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-700 transition-colors"
+              >
+                {t(cat.titleKey)}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Categories */}
-      {categories.map((cat) => (
+      {filtered.map((cat) => (
         <section key={cat.id} id={cat.id} className="mb-14 scroll-mt-20">
           <div className="mb-6">
-            <h2 className="section-title">{cat.title}</h2>
-            <p className="text-gray-500 -mt-4 mb-6">{cat.description}</p>
+            <h2 className="section-title">{t(cat.titleKey)}</h2>
+            <p className="text-gray-500 -mt-4 mb-6">{t(cat.descKey)}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {cat.tools.map((tool) => (
