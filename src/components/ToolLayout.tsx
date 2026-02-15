@@ -27,23 +27,23 @@ export function ToolLayout({ title, description, children }: ToolLayoutProps) {
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 transition-colors mb-3 sm:mb-4"
         >
           <ArrowLeft size={16} />
           {locale === 'ru' ? 'Все инструменты' : 'All Tools'}
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{displayTitle}</h1>
-        <p className="text-gray-500">{displayDesc}</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1.5 sm:mb-2">{displayTitle}</h1>
+        <p className="text-sm sm:text-base text-gray-500">{displayDesc}</p>
       </div>
 
       <AdBanner slot="top" />
 
-      <div className="mt-6">{children}</div>
+      <div className="mt-4 sm:mt-6">{children}</div>
 
-      <div className="mt-8">
+      <div className="mt-6 sm:mt-8">
         <ShareButtons title={displayTitle} />
       </div>
 

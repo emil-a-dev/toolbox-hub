@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 type SchemaType = 'Organization' | 'Article' | 'Product' | 'LocalBusiness' | 'FAQ' | 'BreadcrumbList';
 
@@ -15,6 +16,17 @@ const templates: Record<SchemaType, object> = {
 };
 
 export default function StructuredDataPage() {
+  const texts = {
+    en: {
+      htmlScriptTag: 'HTML Script Tag',
+    },
+    ru: {
+      htmlScriptTag: 'HTML Script-тег',
+    },
+  };
+  const { locale } = useLanguage();
+  const tx = texts[locale];
+
   const [type, setType] = useState<SchemaType>('Organization');
   const [json, setJson] = useState(JSON.stringify(templates['Organization'], null, 2));
 
@@ -30,7 +42,7 @@ export default function StructuredDataPage() {
         ))}
       </div>
       <textarea value={json} onChange={e => setJson(e.target.value)} className="tool-textarea font-mono !text-sm h-64" />
-      <div className="flex items-center justify-between mt-4 mb-2"><h3 className="text-sm font-semibold text-gray-700">HTML Script Tag</h3><CopyButton text={script} /></div>
+      <div className="flex items-center justify-between mt-4 mb-2"><h3 className="text-sm font-semibold text-gray-700">{tx.htmlScriptTag}</h3><CopyButton text={script} /></div>
       <pre className="result-box !text-xs overflow-x-auto">{script}</pre>
     </ToolLayout>
   );

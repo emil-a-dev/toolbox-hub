@@ -2,8 +2,28 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 export default function HttpHeadersPage() {
+  const texts = {
+    en: {
+      check: 'Check',
+      loading: 'Loading...',
+      noHeaders: 'No headers accessible (CORS restriction). Try with a same-origin URL or use the browser DevTools Network tab.',
+      fetchError: 'Failed to fetch',
+      corsNote: 'Note: CORS may block cross-origin requests.',
+    },
+    ru: {
+      check: 'Проверить',
+      loading: 'Загрузка...',
+      noHeaders: 'Заголовки недоступны (ограничение CORS). Попробуйте URL того же домена или вкладку Network в DevTools.',
+      fetchError: 'Ошибка запроса',
+      corsNote: 'Примечание: CORS может блокировать кросс-доменные запросы.',
+    },
+  };
+  const { locale } = useLanguage();
+  const tx = texts[locale];
+
   const [url, setUrl] = useState('');
   const [headers, setHeaders] = useState<[string, string][] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -17,9 +37,9 @@ export default function HttpHeadersPage() {
       const res = await fetch(target, { method: 'HEAD', mode: 'no-cors' });
       const h: [string, string][] = [];
       res.headers.forEach((v, k) => h.push([k, v]));
-      if (h.length === 0) { setError('No headers accessible (CORS restriction). Try with a same-origin URL or use the browser DevTools Network tab.'); }
+      if (h.length === 0) { setError(tx.noHeaders); }
       else setHeaders(h);
-    } catch (e: any) { setError(`Failed to fetch: ${e.message}. Note: CORS may block cross-origin requests.`); }
+    } catch (e: any) { setError(`${tx.fetchError}: ${e.message}. ${tx.corsNote}`); }
     setLoading(false);
   };
 
@@ -27,7 +47,7 @@ export default function HttpHeadersPage() {
     <ToolLayout title="HTTP Headers Checker" description="Check HTTP response headers of any URL. Note: limited by CORS in browser.">
       <div className="flex gap-3">
         <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" className="tool-input flex-1" onKeyDown={(e) => e.key === 'Enter' && check()} />
-        <button onClick={check} className="tool-btn" disabled={loading}>{loading ? 'Loading...' : 'Check'}</button>
+        <button onClick={check} className="tool-btn" disabled={loading}>{loading ? tx.loading : tx.check}</button>
       </div>
       {error && <div className="mt-4 text-sm text-orange-600 bg-orange-50 rounded-lg p-3">{error}</div>}
       {headers && (

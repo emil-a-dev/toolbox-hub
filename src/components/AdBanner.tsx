@@ -35,7 +35,7 @@ export function AdBanner({ slot }: { slot: 'top' | 'bottom' | 'sidebar' }) {
 
   if (!YANDEX_RTB_ENABLED) {
     return (
-      <div className="my-6">
+      <div className="my-3 sm:my-6">
         <div
           className="mx-auto rounded-xl border border-dashed border-gray-200 bg-gray-50 flex items-center justify-center text-xs text-gray-400"
           style={{ minHeight: slot === 'sidebar' ? 250 : 90 }}
@@ -49,7 +49,7 @@ export function AdBanner({ slot }: { slot: 'top' | 'bottom' | 'sidebar' }) {
   const containerId = `yandex-rtb-${slot}-${YANDEX_BLOCK_IDS[slot]}`;
 
   return (
-    <div className="my-6">
+    <div className="my-3 sm:my-6 relative z-0 overflow-hidden">
       <div id={containerId} ref={containerRef} />
     </div>
   );

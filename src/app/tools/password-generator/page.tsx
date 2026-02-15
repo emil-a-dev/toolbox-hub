@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 import { RefreshCw } from 'lucide-react';
 
 function generate(length: number, options: { upper: boolean; lower: boolean; numbers: boolean; symbols: boolean }): string {
@@ -18,6 +19,13 @@ function generate(length: number, options: { upper: boolean; lower: boolean; num
 }
 
 export default function PasswordGeneratorPage() {
+  const texts = {
+    en: { length: 'Length', generate: 'Generate' },
+    ru: { length: 'Длина', generate: 'Сгенерировать' },
+  };
+  const { locale } = useLanguage();
+  const tx = texts[locale];
+
   const [length, setLength] = useState(16);
   const [options, setOptions] = useState({ upper: true, lower: true, numbers: true, symbols: true });
   const [passwords, setPasswords] = useState<string[]>(() =>
@@ -39,7 +47,7 @@ export default function PasswordGeneratorPage() {
     >
       <div className="flex flex-wrap items-end gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Length: {length}</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.length}: {length}</label>
           <input
             type="range"
             min={4}
@@ -66,7 +74,7 @@ export default function PasswordGeneratorPage() {
           </label>
         ))}
         <button onClick={regenerate} className="tool-btn">
-          <RefreshCw size={16} /> Generate
+          <RefreshCw size={16} /> {tx.generate}
         </button>
       </div>
 

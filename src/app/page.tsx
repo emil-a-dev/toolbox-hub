@@ -278,32 +278,32 @@ export default function HomePage() {
   return (
     <div className="animate-fade-in">
       {/* Hero */}
-      <section className="text-center py-12 md:py-20">
-        <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-4 leading-tight">
+      <section className="text-center py-6 sm:py-12 md:py-20">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-gray-900 mb-3 sm:mb-4 leading-tight">
           {t('hero.title1')}
           <span className="bg-gradient-to-r from-primary-600 to-blue-500 bg-clip-text text-transparent">
             {t('hero.title2')}
           </span>
         </h1>
-        <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-8">
+        <p className="text-base sm:text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-5 sm:mb-8">
           {t('hero.subtitle', { count: totalTools })}
         </p>
-        <div className="flex flex-wrap justify-center gap-3 text-sm mb-10">
-          <span className="badge bg-emerald-50 text-emerald-700 !px-3 !py-1.5">{t('hero.badge.free')}</span>
-          <span className="badge bg-blue-50 text-blue-700 !px-3 !py-1.5">{t('hero.badge.client')}</span>
-          <span className="badge bg-purple-50 text-purple-700 !px-3 !py-1.5">{t('hero.badge.noReg')}</span>
-          <span className="badge bg-orange-50 text-orange-700 !px-3 !py-1.5">{t('hero.badge.pwa')}</span>
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 text-xs sm:text-sm mb-6 sm:mb-10">
+          <span className="badge bg-emerald-50 text-emerald-700 !px-2.5 sm:!px-3 !py-1 sm:!py-1.5">{t('hero.badge.free')}</span>
+          <span className="badge bg-blue-50 text-blue-700 !px-2.5 sm:!px-3 !py-1 sm:!py-1.5">{t('hero.badge.client')}</span>
+          <span className="badge bg-purple-50 text-purple-700 !px-2.5 sm:!px-3 !py-1 sm:!py-1.5">{t('hero.badge.noReg')}</span>
+          <span className="badge bg-orange-50 text-orange-700 !px-2.5 sm:!px-3 !py-1 sm:!py-1.5">{t('hero.badge.pwa')}</span>
         </div>
 
         {/* Search */}
         <div className="max-w-xl mx-auto relative">
-          <SearchIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <SearchIcon size={20} className="absolute left-3.5 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('search.placeholder')}
-            className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow text-base"
+            className="w-full pl-10 sm:pl-12 pr-10 py-3 sm:py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow text-sm sm:text-base"
           />
           {query && (
             <button
@@ -325,13 +325,13 @@ export default function HomePage() {
 
       {/* Quick Nav (hidden during search) */}
       {!query && (
-        <section className="mb-10">
-          <div className="flex flex-wrap justify-center gap-2">
+        <section className="mb-6 sm:mb-10">
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
             {categories.map((cat) => (
               <a
                 key={cat.id}
                 href={`#${cat.id}`}
-                className="px-3 py-1.5 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-700 transition-colors"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm bg-gray-100 text-gray-600 hover:bg-primary-100 hover:text-primary-700 transition-colors"
               >
                 {t(cat.titleKey)}
               </a>
@@ -342,12 +342,12 @@ export default function HomePage() {
 
       {/* Categories */}
       {filtered.map((cat) => (
-        <section key={cat.id} id={cat.id} className="mb-14 scroll-mt-20">
-          <div className="mb-6">
+        <section key={cat.id} id={cat.id} className="mb-8 sm:mb-14 scroll-mt-20">
+          <div className="mb-4 sm:mb-6">
             <h2 className="section-title">{t(cat.titleKey)}</h2>
-            <p className="text-gray-500 -mt-4 mb-6">{t(cat.descKey)}</p>
+            <p className="text-sm sm:text-base text-gray-500 -mt-2 sm:-mt-4 mb-4 sm:mb-6">{t(cat.descKey)}</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
             {cat.tools.map((tool) => {
               const { title, desc } = tt(tool);
               return (

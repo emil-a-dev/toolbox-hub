@@ -2,8 +2,36 @@
 
 import { useState, useEffect } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 export default function IpAddressPage() {
+  const texts = {
+    en: {
+      loading: 'Loading...',
+      ipAddress: 'IP Address',
+      city: 'City',
+      region: 'Region',
+      country: 'Country',
+      isp: 'ISP',
+      timezone: 'Timezone',
+      latitude: 'Latitude',
+      longitude: 'Longitude',
+    },
+    ru: {
+      loading: 'Загрузка...',
+      ipAddress: 'IP-адрес',
+      city: 'Город',
+      region: 'Регион',
+      country: 'Страна',
+      isp: 'Провайдер',
+      timezone: 'Часовой пояс',
+      latitude: 'Широта',
+      longitude: 'Долгота',
+    },
+  };
+  const { locale } = useLanguage();
+  const tx = texts[locale];
+
   const [ip, setIp] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [info, setInfo] = useState<any>(null);
@@ -18,19 +46,19 @@ export default function IpAddressPage() {
   }, []);
 
   const fields = info ? [
-    { label: 'IP Address', value: ip },
-    { label: 'City', value: info.city },
-    { label: 'Region', value: info.region },
-    { label: 'Country', value: `${info.country_name} (${info.country_code})` },
-    { label: 'ISP', value: info.org },
-    { label: 'Timezone', value: info.timezone },
-    { label: 'Latitude', value: info.latitude },
-    { label: 'Longitude', value: info.longitude },
+    { label: tx.ipAddress, value: ip },
+    { label: tx.city, value: info.city },
+    { label: tx.region, value: info.region },
+    { label: tx.country, value: `${info.country_name} (${info.country_code})` },
+    { label: tx.isp, value: info.org },
+    { label: tx.timezone, value: info.timezone },
+    { label: tx.latitude, value: info.latitude },
+    { label: tx.longitude, value: info.longitude },
   ] : [];
 
   return (
     <ToolLayout title="IP Address Info" description="See your public IP address and geolocation information.">
-      {loading ? <div className="text-center py-12 text-gray-500">Loading...</div> : (
+      {loading ? <div className="text-center py-12 text-gray-500">{tx.loading}</div> : (
         <div className="max-w-xl">
           <div className="text-center mb-8">
             <div className="text-4xl font-bold text-primary-600 font-mono mb-2">{ip}</div>

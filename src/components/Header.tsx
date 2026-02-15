@@ -13,12 +13,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-lg">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white transition-transform group-hover:scale-110">
-            <Wrench size={18} />
+      <div className="mx-auto flex h-14 sm:h-16 max-w-6xl items-center justify-between px-3 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
+          <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-primary-600 text-white transition-transform group-hover:scale-110">
+            <Wrench size={16} />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+          <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
             ToolBox Hub
           </span>
         </Link>

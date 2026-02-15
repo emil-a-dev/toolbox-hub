@@ -2,8 +2,30 @@
 
 import { useState } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 export default function OgPreviewPage() {
+  const texts = {
+    en: {
+      title: 'Title',
+      url: 'URL',
+      description: 'Description',
+      imageUrl: 'Image URL',
+      siteName: 'Site Name',
+      preview: 'Preview',
+    },
+    ru: {
+      title: 'Заголовок',
+      url: 'URL',
+      description: 'Описание',
+      imageUrl: 'URL изображения',
+      siteName: 'Название сайта',
+      preview: 'Предпросмотр',
+    },
+  };
+  const { locale } = useLanguage();
+  const tx = texts[locale];
+
   const [title, setTitle] = useState('My Amazing Website');
   const [desc, setDesc] = useState('This is a brief description of the page content that will appear in social media shares.');
   const [image, setImage] = useState('');
@@ -13,13 +35,13 @@ export default function OgPreviewPage() {
   return (
     <ToolLayout title="Open Graph Preview" description="Preview how your page looks when shared on social media.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Title</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} className="tool-input" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">URL</label><input type="text" value={url} onChange={e => setUrl(e.target.value)} className="tool-input" /></div>
-        <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea value={desc} onChange={e => setDesc(e.target.value)} className="tool-textarea !h-16" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label><input type="text" value={image} onChange={e => setImage(e.target.value)} className="tool-input" placeholder="https://example.com/og-image.jpg" /></div>
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label><input type="text" value={siteName} onChange={e => setSiteName(e.target.value)} className="tool-input" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">{tx.title}</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} className="tool-input" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">{tx.url}</label><input type="text" value={url} onChange={e => setUrl(e.target.value)} className="tool-input" /></div>
+        <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">{tx.description}</label><textarea value={desc} onChange={e => setDesc(e.target.value)} className="tool-textarea !h-16" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">{tx.imageUrl}</label><input type="text" value={image} onChange={e => setImage(e.target.value)} className="tool-input" placeholder="https://example.com/og-image.jpg" /></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">{tx.siteName}</label><input type="text" value={siteName} onChange={e => setSiteName(e.target.value)} className="tool-input" /></div>
       </div>
-      <h3 className="text-sm font-semibold text-gray-700 mb-3">Preview</h3>
+      <h3 className="text-sm font-semibold text-gray-700 mb-3">{tx.preview}</h3>
       <div className="space-y-6">
         {/* Facebook style */}
         <div><div className="text-xs text-gray-500 mb-1 font-semibold">Facebook / LinkedIn</div>
