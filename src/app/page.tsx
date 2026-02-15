@@ -140,6 +140,8 @@ const categories: CategoryDef[] = [
       { title: 'Headline Analyzer', description: 'Analyze and score your headlines', href: '/tools/headline-analyzer', icon: Megaphone },
       { title: 'Word Frequency Counter', description: 'Count word frequency in any text', href: '/tools/word-frequency', icon: BarChart2 },
       { title: 'Random Quote Generator', description: 'Get random inspiring quotes', href: '/tools/random-quote', icon: Quote },
+      { title: 'Plagiarism Checker', description: 'Analyze text for originality and duplicate fragments', href: '/tools/plagiarism-checker', icon: ShieldCheck },
+      { title: 'AI Content Detector', description: 'Detect AI-generated text with statistical analysis', href: '/tools/ai-content-detector', icon: Bot },
     ],
   },
   {
@@ -195,6 +197,7 @@ const categories: CategoryDef[] = [
       { title: 'Habit Tracker', description: 'Track daily habits with visual calendar', href: '/tools/habit-tracker', icon: CheckSquare },
       { title: 'Expense Tracker', description: 'Track expenses by category', href: '/tools/expense-tracker', icon: Wallet },
       { title: 'Meeting Cost Calculator', description: 'Calculate meeting cost in real-time', href: '/tools/meeting-cost', icon: Users },
+      { title: 'Presentation Generator', description: 'Generate presentations from a topic with templates', href: '/tools/presentation-generator', icon: Layers },
     ],
   },
   {

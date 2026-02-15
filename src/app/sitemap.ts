@@ -33,6 +33,10 @@ const tools = [
   'fake-data-generator', 'wifi-qr-generator', 'meme-text-generator',
   // Data Converters
   'json-to-csv', 'csv-to-json', 'json-to-yaml', 'json-to-typescript', 'html-entity', 'markdown-table',
+  // Content (new)
+  'plagiarism-checker', 'ai-content-detector',
+  // Productivity (new)
+  'presentation-generator',
   // Utilities
   'qr-code-generator', 'timestamp-converter',
 ];
