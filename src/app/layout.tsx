@@ -65,40 +65,20 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
         {/* HilltopAds verification */}
         <meta name="e1bf44561b85e910d4706681f7b810b318d5f243" content="e1bf44561b85e910d4706681f7b810b318d5f243" />
-        {/* HilltopAds ad zone #6803605 */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(rmitp){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = rmitp || {};
-s.src = "//zany-aside.com/bNX.Vks/d/GTls0qY/W/ch/ce/mt9/ueZfUClMkdP/T/Yl4GMUDuM-2CMPDoUOtlNvj/g/w/MzzAYgw/OyQt";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})`
-          }}
-        />
-        {/* HilltopAds mobile-only ad zone */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(qjgk){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = qjgk || {};
-s.src = "//zany-aside.com/bLXBVcsBd.G-lJ0pY/WYcW/pe/m/9ZuLZrUJlGkjPtTiYK4iMVDzMT2qM/zqc/tpN/j/gdwgMUzqYH0/MXQc";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})`
-          }}
-        />
-        {/* HilltopAds desktop-only ad zone */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(bu){
+      </head>
+      <body className="min-h-screen flex flex-col">
+        <LanguageProvider>
+          <Header />
+          <div className="flex-1 flex w-full max-w-[1400px] mx-auto">
+            <main className="flex-1 w-full max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+              {children}
+            </main>
+            {/* Desktop sidebar ad — fixed, visible only on lg+ */}
+            <aside className="hidden lg:block w-[180px] shrink-0 relative">
+              <div className="fixed top-20 w-[160px]" id="desktop-ad-container">
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `(function(bu){
 var d = document,
     s = d.createElement('script'),
     l = d.scripts[d.scripts.length - 1];
@@ -108,17 +88,30 @@ s.async = true;
 s.referrerPolicy = 'no-referrer-when-downgrade';
 l.parentNode.insertBefore(s, l);
 })({})`
-          }}
-        />
-      </head>
-      <body className="min-h-screen flex flex-col pb-[130px] sm:pb-0">
-        <LanguageProvider>
-          <Header />
-          <main className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-            {children}
-          </main>
+                  }}
+                />
+              </div>
+            </aside>
+          </div>
           <Footer />
         </LanguageProvider>
+        {/* Mobile fixed bottom ad — visible only on mobile */}
+        <div className="fixed bottom-0 left-0 right-0 z-[9999] lg:hidden bg-white/95 backdrop-blur-sm shadow-[0_-2px_10px_rgba(0,0,0,0.1)]" id="mobile-ad-container">
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(qjgk){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = qjgk || {};
+s.src = "//zany-aside.com/bLXBVcsBd.G-lJ0pY/WYcW/pe/m/9ZuLZrUJlGkjPtTiYK4iMVDzMT2qM/zqc/tpN/j/gdwgMUzqYH0/MXQc";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})`
+            }}
+          />
+        </div>
         <Analytics />
       </body>
     </html>
