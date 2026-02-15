@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
 import './globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -66,15 +65,20 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
         {/* HilltopAds verification */}
         <meta name="e1bf44561b85e910d4706681f7b810b318d5f243" content="e1bf44561b85e910d4706681f7b810b318d5f243" />
-        {/* Yandex.RTB */}
+        {/* HilltopAds ad zone #6803605 */}
         <script
           dangerouslySetInnerHTML={{
-            __html: 'window.yaContextCb=window.yaContextCb||[]',
+            __html: `(function(rmitp){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = rmitp || {};
+s.src = "//zany-aside.com/bNX.Vks/d/GTls0qY/W/ch/ce/mt9/ueZfUClMkdP/T/Yl4GMUDuM-2CMPDoUOtlNvj/g/w/MzzAYgw/OyQt";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})`
           }}
-        />
-        <Script
-          src="https://yandex.ru/ads/system/context.js"
-          strategy="afterInteractive"
         />
       </head>
       <body className="min-h-screen flex flex-col">
