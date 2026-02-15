@@ -87,3 +87,39 @@
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
 }
+
+/* ── Prevent ad overlays from covering content ── */
+/* Push our header above any injected overlay */
+header {
+  z-index: 2147483647 !important;
+  position: sticky !important;
+}
+
+/* Main content sits above overlay ads */
+main {
+  position: relative;
+  z-index: 10;
+}
+
+/* Constrain any injected overlay ads: limit size and prevent full-screen cover */
+body > div:not(#__next):not([class]) > a,
+body > div[style*="position: fixed"]:not(#__next),
+body > div[style*="position: absolute"]:not(#__next),
+body > div[style*="z-index: 999"]:not(#__next) {
+  pointer-events: auto;
+  max-height: 120px !important;
+  top: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Prevent ad iframes from covering full screen */
+body > iframe[style*="position: fixed"],
+body > iframe[style*="z-index"] {
+  max-height: 120px !important;
+  top: auto !important;
+  bottom: 0 !important;
+}

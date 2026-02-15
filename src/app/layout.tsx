@@ -81,7 +81,7 @@ l.parentNode.insertBefore(s, l);
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col pb-[130px] sm:pb-0">
         <LanguageProvider>
           <Header />
           <main className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
