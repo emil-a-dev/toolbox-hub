@@ -64,12 +64,17 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
-        {/* Google AdSense — replace ca-pub-XXXXXXXXXXXXXXXX with your real publisher ID */}
+        {/* HilltopAds verification */}
+        <meta name="e1bf44561b85e910d4706681f7b810b318d5f243" content="e1bf44561b85e910d4706681f7b810b318d5f243" />
+        {/* Yandex.RTB */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: 'window.yaContextCb=window.yaContextCb||[]',
+          }}
+        />
         <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-          crossOrigin="anonymous"
-          strategy="lazyOnload"
+          src="https://yandex.ru/ads/system/context.js"
+          strategy="afterInteractive"
         />
       </head>
       <body className="min-h-screen flex flex-col">

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 interface DiffLine {
   type: 'same' | 'added' | 'removed';
@@ -35,7 +36,32 @@ function computeDiff(textA: string, textB: string): DiffLine[] {
   return result;
 }
 
+const texts = {
+  en: {
+    original: 'Original',
+    modified: 'Modified',
+    placeholderOriginal: 'Paste original text here...',
+    placeholderModified: 'Paste modified text here...',
+    compare: 'Compare',
+    added: 'added',
+    removed: 'removed',
+    unchanged: 'unchanged',
+  },
+  ru: {
+    original: 'Оригинал',
+    modified: 'Изменённый',
+    placeholderOriginal: 'Вставьте исходный текст...',
+    placeholderModified: 'Вставьте изменённый текст...',
+    compare: 'Сравнить',
+    added: 'добавлено',
+    removed: 'удалено',
+    unchanged: 'без изменений',
+  },
+};
+
 export default function TextDiffPage() {
+  const { locale } = useLanguage();
+  const tx = texts[locale];
   const [textA, setTextA] = useState('');
   const [textB, setTextB] = useState('');
   const [diff, setDiff] = useState<DiffLine[] | null>(null);
@@ -59,35 +85,35 @@ export default function TextDiffPage() {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Original</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.original}</label>
           <textarea
             value={textA}
             onChange={(e) => setTextA(e.target.value)}
-            placeholder="Paste original text here..."
+            placeholder={tx.placeholderOriginal}
             className="tool-textarea !min-h-[200px]"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Modified</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.modified}</label>
           <textarea
             value={textB}
             onChange={(e) => setTextB(e.target.value)}
-            placeholder="Paste modified text here..."
+            placeholder={tx.placeholderModified}
             className="tool-textarea !min-h-[200px]"
           />
         </div>
       </div>
 
       <button onClick={handleCompare} className="tool-btn mt-4">
-        Compare
+        {tx.compare}
       </button>
 
       {diff && stats && (
         <div className="mt-6">
           <div className="flex gap-4 mb-4 text-sm">
-            <span className="badge bg-emerald-50 text-emerald-700">+{stats.added} added</span>
-            <span className="badge bg-red-50 text-red-700">-{stats.removed} removed</span>
-            <span className="badge bg-gray-100 text-gray-600">{stats.same} unchanged</span>
+            <span className="badge bg-emerald-50 text-emerald-700">+{stats.added} {tx.added}</span>
+            <span className="badge bg-red-50 text-red-700">-{stats.removed} {tx.removed}</span>
+            <span className="badge bg-gray-100 text-gray-600">{stats.same} {tx.unchanged}</span>
           </div>
 
           <div className="rounded-xl border border-gray-200 overflow-hidden font-mono text-sm">

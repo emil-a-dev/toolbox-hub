@@ -3,42 +3,19 @@
 import Script from 'next/script';
 
 // =============================================
-// INSTRUCTIONS:
-// 1. Replace GA_MEASUREMENT_ID with your Google Analytics 4 ID (e.g. G-XXXXXXXXXX)
-//    Get it at: https://analytics.google.com → Admin → Data Streams → Web → Measurement ID
-//
-// 2. Replace YM_COUNTER_ID with your Yandex Metrika counter ID (e.g. 12345678)
-//    Get it at: https://metrika.yandex.ru → Add counter → copy the counter number
-//
-// 3. Set ENABLED to true when you're ready to activate tracking
+// Яндекс Метрика
+// 1. Замени YM_COUNTER_ID на ID счётчика из https://metrika.yandex.ru
+// 2. Установи ENABLED = true когда будет готов
 // =============================================
 
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX';   // ← Replace with your GA4 ID
-const YM_COUNTER_ID = '00000000';           // ← Replace with your Yandex Metrika ID
-const ENABLED = false;                      // ← Set to true to enable tracking
+const YM_COUNTER_ID = '00000000';           // ← Замени на ID счётчика
+const ENABLED = false;                      // ← true чтобы включить
 
 export function Analytics() {
   if (!ENABLED) return null;
 
   return (
     <>
-      {/* ========== Google Analytics 4 ========== */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="afterInteractive"
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA_MEASUREMENT_ID}', {
-            page_path: window.location.pathname,
-            anonymize_ip: true,
-          });
-        `}
-      </Script>
-
       {/* ========== Yandex Metrika ========== */}
       <Script id="yandex-metrika" strategy="afterInteractive">
         {`

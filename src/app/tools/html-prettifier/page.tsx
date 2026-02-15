@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 function prettifyHTML(html: string): string {
   let indent = 0;
@@ -27,19 +28,38 @@ function minifyHTML(html: string): string {
   return html.replace(/\n/g, '').replace(/\s{2,}/g, ' ').replace(/>\s+</g, '><').trim();
 }
 
+const texts = {
+  en: {
+    inputHtml: 'Input HTML',
+    output: 'Output',
+    outputPlaceholder: 'Output will appear here...',
+    beautify: 'Beautify',
+    minify: 'Minify',
+  },
+  ru: {
+    inputHtml: 'Входной HTML',
+    output: 'Результат',
+    outputPlaceholder: 'Результат появится здесь...',
+    beautify: 'Форматировать',
+    minify: 'Минифицировать',
+  },
+};
+
 export default function HtmlPrettifierPage() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
+  const { locale } = useLanguage();
+  const tx = texts[locale];
 
   return (
     <ToolLayout title="HTML Prettifier" description="Format, beautify, or minify HTML code.">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div><label className="block text-sm font-medium text-gray-700 mb-1">Input HTML</label><textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="<div><p>Paste HTML here</p></div>" className="tool-textarea !min-h-[300px]" /></div>
-        <div><div className="flex items-center justify-between mb-1"><label className="text-sm font-medium text-gray-700">Output</label>{output && <CopyButton text={output} />}</div><div className="result-box min-h-[300px]">{output || 'Output will appear here...'}</div></div>
+        <div><label className="block text-sm font-medium text-gray-700 mb-1">{tx.inputHtml}</label><textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="<div><p>Paste HTML here</p></div>" className="tool-textarea !min-h-[300px]" /></div>
+        <div><div className="flex items-center justify-between mb-1"><label className="text-sm font-medium text-gray-700">{tx.output}</label>{output && <CopyButton text={output} />}</div><div className="result-box min-h-[300px]">{output || tx.outputPlaceholder}</div></div>
       </div>
       <div className="flex gap-3 mt-4">
-        <button onClick={() => setOutput(prettifyHTML(input))} className="tool-btn">Beautify</button>
-        <button onClick={() => setOutput(minifyHTML(input))} className="tool-btn-secondary">Minify</button>
+        <button onClick={() => setOutput(prettifyHTML(input))} className="tool-btn">{tx.beautify}</button>
+        <button onClick={() => setOutput(minifyHTML(input))} className="tool-btn-secondary">{tx.minify}</button>
       </div>
     </ToolLayout>
   );

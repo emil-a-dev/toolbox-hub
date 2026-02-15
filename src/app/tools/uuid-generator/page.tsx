@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 import { RefreshCw } from 'lucide-react';
 
 function generateUUID(): string {
@@ -12,6 +13,25 @@ function generateUUID(): string {
   });
 }
 
+const texts = {
+  en: {
+    count: 'Count',
+    uppercase: 'Uppercase',
+    noDashes: 'No dashes',
+    generate: 'Generate',
+    uuidsLabel: 'UUIDs',
+    copy: 'Copy',
+  },
+  ru: {
+    count: 'Количество',
+    uppercase: 'Верхний регистр',
+    noDashes: 'Без дефисов',
+    generate: 'Сгенерировать',
+    uuidsLabel: 'UUID',
+    copy: 'Копировать',
+  },
+};
+
 export default function UuidGeneratorPage() {
   const [count, setCount] = useState(5);
   const [uppercase, setUppercase] = useState(false);
@@ -19,6 +39,8 @@ export default function UuidGeneratorPage() {
   const [uuids, setUuids] = useState<string[]>(() =>
     Array.from({ length: 5 }, () => generateUUID())
   );
+  const { locale } = useLanguage();
+  const tx = texts[locale];
 
   const generate = useCallback(() => {
     setUuids(Array.from({ length: count }, () => {
@@ -38,7 +60,7 @@ export default function UuidGeneratorPage() {
     >
       <div className="flex flex-wrap items-end gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Count</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.count}</label>
           <input
             type="number"
             value={count}
@@ -50,20 +72,20 @@ export default function UuidGeneratorPage() {
         </div>
         <label className="flex items-center gap-2 text-sm text-gray-600 pb-2">
           <input type="checkbox" checked={uppercase} onChange={(e) => setUppercase(e.target.checked)} className="rounded" />
-          Uppercase
+          {tx.uppercase}
         </label>
         <label className="flex items-center gap-2 text-sm text-gray-600 pb-2">
           <input type="checkbox" checked={noDashes} onChange={(e) => setNoDashes(e.target.checked)} className="rounded" />
-          No dashes
+          {tx.noDashes}
         </label>
         <button onClick={generate} className="tool-btn">
-          <RefreshCw size={16} /> Generate
+          <RefreshCw size={16} /> {tx.generate}
         </button>
       </div>
 
       <div className="mt-6">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-gray-700">{uuids.length} UUIDs</h3>
+          <h3 className="text-sm font-semibold text-gray-700">{uuids.length} {tx.uuidsLabel}</h3>
           <CopyButton text={allText} />
         </div>
         <div className="rounded-xl border border-gray-200 divide-y divide-gray-100">
@@ -74,7 +96,7 @@ export default function UuidGeneratorPage() {
                 onClick={() => navigator.clipboard.writeText(uuid)}
                 className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary-600"
               >
-                Copy
+                {tx.copy}
               </button>
             </div>
           ))}

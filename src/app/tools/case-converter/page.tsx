@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 type CaseType = 'upper' | 'lower' | 'title' | 'sentence' | 'camel' | 'snake' | 'kebab' | 'toggle';
 
@@ -15,6 +16,17 @@ const conversions: { id: CaseType; label: string }[] = [
   { id: 'kebab', label: 'kebab-case' },
   { id: 'toggle', label: 'tOGGLE cASE' },
 ];
+
+const texts = {
+  en: {
+    placeholder: 'Type or paste your text here...',
+    result: 'Result',
+  },
+  ru: {
+    placeholder: 'Введите или вставьте текст...',
+    result: 'Результат',
+  },
+};
 
 function convertCase(text: string, type: CaseType): string {
   switch (type) {
@@ -34,6 +46,8 @@ function convertCase(text: string, type: CaseType): string {
 }
 
 export default function CaseConverterPage() {
+  const { locale } = useLanguage();
+  const tx = texts[locale];
   const [text, setText] = useState('');
   const [activeCase, setActiveCase] = useState<CaseType>('upper');
   const result = convertCase(text, activeCase);
@@ -46,7 +60,7 @@ export default function CaseConverterPage() {
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Type or paste your text here..."
+        placeholder={tx.placeholder}
         className="tool-textarea"
       />
 
@@ -69,7 +83,7 @@ export default function CaseConverterPage() {
       {text && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-semibold text-gray-700">Result</h3>
+            <h3 className="text-sm font-semibold text-gray-700">{tx.result}</h3>
             <CopyButton text={result} />
           </div>
           <div className="result-box">{result}</div>

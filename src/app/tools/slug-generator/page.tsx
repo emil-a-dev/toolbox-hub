@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 function toSlug(text: string): string {
   return text.toLowerCase().trim()
@@ -14,14 +15,28 @@ function toSlug(text: string): string {
     .replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
 }
 
+const texts = {
+  en: {
+    placeholder: 'Enter title or text...',
+    urlSlug: 'URL Slug',
+  },
+  ru: {
+    placeholder: 'Введите заголовок или текст...',
+    urlSlug: 'Сгенерированный слаг',
+  },
+};
+
 export default function SlugGeneratorPage() {
+  const { locale } = useLanguage();
+  const tx = texts[locale];
+
   const [text, setText] = useState('');
   const slug = toSlug(text);
 
   return (
     <ToolLayout title="Slug Generator" description="Convert text to URL-friendly slugs. Supports transliteration of Cyrillic and accented characters.">
-      <input type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter title or text..." className="tool-input text-lg" />
-      {text && <div className="mt-6"><div className="flex items-center justify-between mb-2"><h3 className="text-sm font-semibold text-gray-700">URL Slug</h3><CopyButton text={slug} /></div><div className="result-box text-lg">{slug || '—'}</div></div>}
+      <input type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder={tx.placeholder} className="tool-input text-lg" />
+      {text && <div className="mt-6"><div className="flex items-center justify-between mb-2"><h3 className="text-sm font-semibold text-gray-700">{tx.urlSlug}</h3><CopyButton text={slug} /></div><div className="result-box text-lg">{slug || '—'}</div></div>}
     </ToolLayout>
   );
 }

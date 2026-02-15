@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 async function computeHash(algorithm: string, text: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -18,10 +19,25 @@ const algorithms = [
   { id: 'SHA-512', label: 'SHA-512' },
 ];
 
+const texts = {
+  en: {
+    placeholder: 'Enter text to hash...',
+    generateHashes: 'Generate Hashes',
+    uppercase: 'Uppercase',
+  },
+  ru: {
+    placeholder: 'Введите текст для хеширования...',
+    generateHashes: 'Сгенерировать хеши',
+    uppercase: 'Верхний регистр',
+  },
+};
+
 export default function HashGeneratorPage() {
   const [input, setInput] = useState('');
   const [hashes, setHashes] = useState<Record<string, string>>({});
   const [uppercase, setUppercase] = useState(false);
+  const { locale } = useLanguage();
+  const tx = texts[locale];
 
   const generate = async () => {
     if (!input) return;
@@ -40,12 +56,12 @@ export default function HashGeneratorPage() {
       <textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Enter text to hash..."
+        placeholder={tx.placeholder}
         className="tool-textarea"
       />
 
       <div className="flex items-center gap-4 mt-4">
-        <button onClick={generate} className="tool-btn">Generate Hashes</button>
+        <button onClick={generate} className="tool-btn">{tx.generateHashes}</button>
         <label className="flex items-center gap-2 text-sm text-gray-600">
           <input
             type="checkbox"
@@ -53,7 +69,7 @@ export default function HashGeneratorPage() {
             onChange={(e) => setUppercase(e.target.checked)}
             className="rounded"
           />
-          Uppercase
+          {tx.uppercase}
         </label>
       </div>
 

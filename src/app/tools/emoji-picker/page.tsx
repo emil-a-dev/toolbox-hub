@@ -2,6 +2,25 @@
 
 import { useState, useMemo } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
+
+const emojiCatNames: Record<string, Record<string, string>> = {
+  en: {
+    '😀 Smileys': '😀 Smileys', '👋 Gestures': '👋 Gestures', '❤️ Hearts': '❤️ Hearts',
+    '🐱 Animals': '🐱 Animals', '🍕 Food': '🍕 Food', '🚀 Travel': '🚀 Travel',
+    '⚽ Activity': '⚽ Activity', '💡 Objects': '💡 Objects', '🏁 Flags': '🏁 Flags',
+  },
+  ru: {
+    '😀 Smileys': '😀 Смайлики', '👋 Gestures': '👋 Жесты', '❤️ Hearts': '❤️ Сердца',
+    '🐱 Animals': '🐱 Животные', '🍕 Food': '🍕 Еда', '🚀 Travel': '🚀 Путешествия',
+    '⚽ Activity': '⚽ Активности', '💡 Objects': '💡 Объекты', '🏁 Flags': '🏁 Флаги',
+  },
+};
+
+const emojiUiTexts = {
+  en: { search: 'Search emojis by category...', copied: 'Copied' },
+  ru: { search: 'Поиск эмодзи по категории...', copied: 'Скопировано' },
+};
 
 const EMOJIS: { cat: string; emojis: string[] }[] = [
   { cat: '😀 Smileys', emojis: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥴','😵','🤯','🥳','🥸','😎','🤓','🧐'] },
@@ -16,6 +35,7 @@ const EMOJIS: { cat: string; emojis: string[] }[] = [
 ];
 
 export default function EmojiPickerPage() {
+  const { locale } = useLanguage();
   const [search, setSearch] = useState('');
   const [copied, setCopied] = useState('');
 
@@ -27,12 +47,12 @@ export default function EmojiPickerPage() {
 
   return (
     <ToolLayout title="Emoji Picker" description="Search and copy emojis with one click.">
-      {copied && <div className="fixed top-20 right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm shadow-lg z-50 animate-fade-in">Copied: {copied}</div>}
-      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search emojis by category..." className="tool-input text-lg mb-6" />
+      {copied && <div className="fixed top-20 right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm shadow-lg z-50 animate-fade-in">{emojiUiTexts[locale].copied}: {copied}</div>}
+      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={emojiUiTexts[locale].search} className="tool-input text-lg mb-6" />
       <div className="space-y-8">
         {EMOJIS.filter(g => !search || g.cat.toLowerCase().includes(search.toLowerCase())).map((group) => (
           <div key={group.cat}>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">{group.cat}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">{emojiCatNames[locale][group.cat] || group.cat}</h3>
             <div className="flex flex-wrap gap-1">
               {group.emojis.map((e, i) => (
                 <button key={i} onClick={() => copy(e)} className="w-10 h-10 flex items-center justify-center rounded-lg text-2xl hover:bg-gray-100 transition-all hover:scale-125 active:scale-95">{e}</button>

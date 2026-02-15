@@ -2,9 +2,12 @@
 
 import { ArrowLeft, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState, useCallback } from 'react';
 import { AdBanner } from './AdBanner';
 import { ShareButtons } from './ShareButtons';
+import { useLanguage } from './LanguageProvider';
+import { getToolI18n } from '@/lib/toolTranslations';
 
 interface ToolLayoutProps {
   title: string;
@@ -13,6 +16,15 @@ interface ToolLayoutProps {
 }
 
 export function ToolLayout({ title, description, children }: ToolLayoutProps) {
+  const { locale } = useLanguage();
+  const pathname = usePathname();
+
+  // Extract tool slug from pathname (e.g. /tools/word-counter -> word-counter)
+  const slug = pathname.replace('/tools/', '');
+  const i18n = getToolI18n(slug, locale);
+  const displayTitle = locale === 'ru' && i18n.title !== slug ? i18n.title : title;
+  const displayDesc = locale === 'ru' && i18n.desc ? i18n.desc : description;
+
   return (
     <div className="animate-fade-in">
       <div className="mb-6">
@@ -21,10 +33,10 @@ export function ToolLayout({ title, description, children }: ToolLayoutProps) {
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 transition-colors mb-4"
         >
           <ArrowLeft size={16} />
-          All Tools
+          {locale === 'ru' ? 'Все инструменты' : 'All Tools'}
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
-        <p className="text-gray-500">{description}</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{displayTitle}</h1>
+        <p className="text-gray-500">{displayDesc}</p>
       </div>
 
       <AdBanner slot="top" />
@@ -32,7 +44,7 @@ export function ToolLayout({ title, description, children }: ToolLayoutProps) {
       <div className="mt-6">{children}</div>
 
       <div className="mt-8">
-        <ShareButtons title={title} />
+        <ShareButtons title={displayTitle} />
       </div>
 
       <AdBanner slot="bottom" />
@@ -66,15 +78,16 @@ export function useCopyToClipboard() {
 
 export function CopyButton({ text }: { text: string }) {
   const { copied, copy } = useCopyToClipboard();
+  const { t } = useLanguage();
 
   return (
     <button
       onClick={() => copy(text)}
       className="tool-btn-secondary !py-2 !px-3 text-xs"
-      title="Copy to clipboard"
+      title={t('ui.copyToClipboard')}
     >
       {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-      {copied ? 'Copied!' : 'Copy'}
+      {copied ? t('ui.copied') : t('ui.copy')}
     </button>
   );
 }

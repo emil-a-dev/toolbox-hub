@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 const LOREM_WORDS = 'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum'.split(' ');
 
@@ -40,7 +41,30 @@ function generateParagraphs(count: number): string {
   return paras.join('\n\n');
 }
 
+const texts = {
+  en: {
+    count: 'Count',
+    type: 'Type',
+    paragraphs: 'Paragraphs',
+    sentences: 'Sentences',
+    words: 'Words',
+    generate: 'Generate',
+    generatedText: 'Generated Text',
+  },
+  ru: {
+    count: 'Количество',
+    type: 'Тип',
+    paragraphs: 'Абзацы',
+    sentences: 'Предложения',
+    words: 'Слова',
+    generate: 'Сгенерировать',
+    generatedText: 'Сгенерированный текст',
+  },
+};
+
 export default function LoremIpsumPage() {
+  const { locale } = useLanguage();
+  const tx = texts[locale];
   const [type, setType] = useState<'paragraphs' | 'words' | 'sentences'>('paragraphs');
   const [count, setCount] = useState(3);
 
@@ -67,7 +91,7 @@ export default function LoremIpsumPage() {
     >
       <div className="flex flex-wrap items-end gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Count</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.count}</label>
           <input
             type="number"
             value={count}
@@ -78,25 +102,25 @@ export default function LoremIpsumPage() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.type}</label>
           <select
             value={type}
             onChange={(e) => setType(e.target.value as typeof type)}
             className="tool-input !w-40"
           >
-            <option value="paragraphs">Paragraphs</option>
-            <option value="sentences">Sentences</option>
-            <option value="words">Words</option>
+            <option value="paragraphs">{tx.paragraphs}</option>
+            <option value="sentences">{tx.sentences}</option>
+            <option value="words">{tx.words}</option>
           </select>
         </div>
         <button onClick={handleGenerate} className="tool-btn">
-          Generate
+          {tx.generate}
         </button>
       </div>
 
       <div className="mt-6">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-gray-700">Generated Text</h3>
+          <h3 className="text-sm font-semibold text-gray-700">{tx.generatedText}</h3>
           <CopyButton text={result} />
         </div>
         <div className="result-box !whitespace-pre-wrap">{result}</div>

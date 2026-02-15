@@ -2,8 +2,41 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
+
+const texts = {
+  en: {
+    enterText: 'Enter your text...',
+    find: 'Find',
+    searchFor: 'Search for...',
+    replaceWith: 'Replace with',
+    replaceWithPlaceholder: 'Replace with...',
+    regex: 'Regex',
+    caseSensitive: 'Case sensitive',
+    match: 'match',
+    matches: 'matches',
+    replaceAll: 'Replace All',
+    result: 'Result',
+  },
+  ru: {
+    enterText: 'Введите текст...',
+    find: 'Найти',
+    searchFor: 'Искать...',
+    replaceWith: 'Заменить на',
+    replaceWithPlaceholder: 'Заменить на...',
+    regex: 'Регулярные выражения',
+    caseSensitive: 'Учитывать регистр',
+    match: 'совпадение',
+    matches: 'совпадений',
+    replaceAll: 'Заменить всё',
+    result: 'Результат',
+  },
+};
 
 export default function FindReplacePage() {
+  const { locale } = useLanguage();
+  const tx = texts[locale];
+
   const [text, setText] = useState('');
   const [find, setFind] = useState('');
   const [replace, setReplace] = useState('');
@@ -40,24 +73,24 @@ export default function FindReplacePage() {
 
   return (
     <ToolLayout title="Find & Replace" description="Find and replace text with support for regular expressions.">
-      <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Enter your text..." className="tool-textarea !min-h-[150px]" />
+      <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={tx.enterText} className="tool-textarea !min-h-[150px]" />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Find</label>
-          <input type="text" value={find} onChange={(e) => setFind(e.target.value)} className="tool-input" placeholder="Search for..." />
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.find}</label>
+          <input type="text" value={find} onChange={(e) => setFind(e.target.value)} className="tool-input" placeholder={tx.searchFor} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Replace with</label>
-          <input type="text" value={replace} onChange={(e) => setReplace(e.target.value)} className="tool-input" placeholder="Replace with..." />
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.replaceWith}</label>
+          <input type="text" value={replace} onChange={(e) => setReplace(e.target.value)} className="tool-input" placeholder={tx.replaceWithPlaceholder} />
         </div>
       </div>
       <div className="flex items-center gap-4 mt-3">
-        <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" checked={useRegex} onChange={(e) => setUseRegex(e.target.checked)} className="rounded" /> Regex</label>
-        <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" checked={caseSensitive} onChange={(e) => setCaseSensitive(e.target.checked)} className="rounded" /> Case sensitive</label>
-        {find && <span className="text-sm text-gray-500">{matchCount} match{matchCount !== 1 ? 'es' : ''}</span>}
+        <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" checked={useRegex} onChange={(e) => setUseRegex(e.target.checked)} className="rounded" /> {tx.regex}</label>
+        <label className="flex items-center gap-2 text-sm text-gray-600"><input type="checkbox" checked={caseSensitive} onChange={(e) => setCaseSensitive(e.target.checked)} className="rounded" /> {tx.caseSensitive}</label>
+        {find && <span className="text-sm text-gray-500">{matchCount} {matchCount !== 1 ? tx.matches : tx.match}</span>}
       </div>
-      <button onClick={handleReplace} className="tool-btn mt-4">Replace All</button>
-      {result && <div className="mt-6"><div className="flex items-center justify-between mb-2"><h3 className="text-sm font-semibold text-gray-700">Result</h3><CopyButton text={result} /></div><div className="result-box">{result}</div></div>}
+      <button onClick={handleReplace} className="tool-btn mt-4">{tx.replaceAll}</button>
+      {result && <div className="mt-6"><div className="flex items-center justify-between mb-2"><h3 className="text-sm font-semibold text-gray-700">{tx.result}</h3><CopyButton text={result} /></div><div className="result-box">{result}</div></div>}
     </ToolLayout>
   );
 }

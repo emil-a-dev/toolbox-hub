@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout, CopyButton } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 const FIELDS: Record<string, string[]> = {
   minute: ['0-59','*',',','-','/'],
@@ -53,24 +54,55 @@ const EXAMPLES = [
   { expr: '0 0 * * 0', desc: 'Every Sunday at midnight' },
 ];
 
+const texts = {
+  en: {
+    fieldLabels: ['minute', 'hour', 'day(month)', 'month', 'day(week)'],
+    commonExamples: 'Common Examples',
+    exampleDescs: [
+      'Every minute',
+      'Every hour',
+      'Every day at midnight',
+      'Weekdays at 9 AM',
+      'Every 15 minutes',
+      'First day of every month',
+      'Every Sunday at midnight',
+    ],
+  },
+  ru: {
+    fieldLabels: ['минута', 'час', 'день(месяц)', 'месяц', 'день(неделя)'],
+    commonExamples: 'Частые примеры',
+    exampleDescs: [
+      'Каждую минуту',
+      'Каждый час',
+      'Каждый день в полночь',
+      'Будни в 9 утра',
+      'Каждые 15 минут',
+      'Первый день каждого месяца',
+      'Каждое воскресенье в полночь',
+    ],
+  },
+};
+
 export default function CronParserPage() {
   const [expr, setExpr] = useState('*/15 * * * *');
+  const { locale } = useLanguage();
+  const tx = texts[locale];
   const description = parseCron(expr);
 
   return (
     <ToolLayout title="Cron Expression Parser" description="Parse and explain cron expressions in human-readable format.">
       <input type="text" value={expr} onChange={(e) => setExpr(e.target.value)} placeholder="* * * * *" className="tool-input font-mono text-xl text-center" />
       <div className="flex justify-center gap-4 mt-2 text-xs text-gray-400">
-        {['minute','hour','day(month)','month','day(week)'].map(f => <span key={f}>{f}</span>)}
+        {tx.fieldLabels.map((f: string) => <span key={f}>{f}</span>)}
       </div>
       <div className="mt-6 rounded-xl bg-primary-50 border border-primary-200 p-4 text-center"><p className="text-primary-800 font-medium">{description}</p></div>
       <div className="mt-8">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Common Examples</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">{tx.commonExamples}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {EXAMPLES.map(ex => (
+          {EXAMPLES.map((ex, i) => (
             <button key={ex.expr} onClick={() => setExpr(ex.expr)} className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-2 hover:bg-gray-50 transition-colors text-left">
               <code className="font-mono text-sm text-primary-600">{ex.expr}</code>
-              <span className="text-sm text-gray-500">{ex.desc}</span>
+              <span className="text-sm text-gray-500">{tx.exampleDescs[i]}</span>
             </button>
           ))}
         </div>

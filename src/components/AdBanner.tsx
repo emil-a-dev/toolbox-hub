@@ -1,55 +1,56 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 // ============================================================
-// ⚙️  CONFIGURATION — replace with your real AdSense values
+// ⚙️  Яндекс РСЯ — замени YANDEX_BLOCK_IDS на реальные значения
 // ============================================================
-const ADSENSE_CLIENT = 'ca-pub-XXXXXXXXXXXXXXXX';   // your publisher ID
-const SLOT_IDS: Record<string, string> = {
-  top: '1111111111',
-  bottom: '2222222222',
-  sidebar: '3333333333',
+const YANDEX_RTB_ENABLED = true;
+const YANDEX_BLOCK_IDS: Record<string, string> = {
+  top:     'R-A-18733662-1',
+  bottom:  'R-A-18733662-1',
+  sidebar: 'R-A-18733662-1',
 };
-// Set to true once your AdSense account is approved and the
-// script is verified. While false, a placeholder is shown.
-const ADSENSE_ENABLED = false;
 // ============================================================
 
 export function AdBanner({ slot }: { slot: 'top' | 'bottom' | 'sidebar' }) {
-  useEffect(() => {
-    if (ADSENSE_ENABLED) {
-      try {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-      } catch {
-        // ad blocked or not loaded
-      }
-    }
-  }, []);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  if (!ADSENSE_ENABLED) {
+  useEffect(() => {
+    if (!YANDEX_RTB_ENABLED || !containerRef.current) return;
+    try {
+      const w = window as any;
+      w.yaContextCb = w.yaContextCb || [];
+      w.yaContextCb.push(() => {
+        (window as any).Ya.Context.AdvManager.render({
+          blockId: YANDEX_BLOCK_IDS[slot] || YANDEX_BLOCK_IDS.top,
+          renderTo: containerRef.current!.id,
+          type: slot === 'sidebar' ? 'floorAd' : 'feed',
+        });
+      });
+    } catch {
+      // ad blocked or not loaded
+    }
+  }, [slot]);
+
+  if (!YANDEX_RTB_ENABLED) {
     return (
       <div className="my-6">
         <div
           className="mx-auto rounded-xl border border-dashed border-gray-200 bg-gray-50 flex items-center justify-center text-xs text-gray-400"
           style={{ minHeight: slot === 'sidebar' ? 250 : 90 }}
         >
-          Ad Space ({slot})
+          Яндекс РСЯ ({slot})
         </div>
       </div>
     );
   }
 
+  const containerId = `yandex-rtb-${slot}-${YANDEX_BLOCK_IDS[slot]}`;
+
   return (
     <div className="my-6">
-      <ins
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client={ADSENSE_CLIENT}
-        data-ad-slot={SLOT_IDS[slot] || SLOT_IDS.top}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
+      <div id={containerId} ref={containerRef} />
     </div>
   );
 }

@@ -86,6 +86,18 @@ export const translations = {
     'tool.characterMap.desc': 'Browse and copy special Unicode characters',
     'tool.emojiPicker': 'Emoji Picker',
     'tool.emojiPicker.desc': 'Search and copy emojis quickly',
+
+    // Common tool UI
+    'ui.allTools': 'All Tools',
+    'ui.share': 'Share:',
+    'ui.copy': 'Copy',
+    'ui.copied': 'Copied!',
+    'ui.copyToClipboard': 'Copy to clipboard',
+    'ui.shareTwitter': 'Share on X/Twitter',
+    'ui.shareReddit': 'Share on Reddit',
+    'ui.copyLink': 'Copy link',
+    'ui.tweetText': 'Check out {title} — free online tool!',
+    'ui.redditTitle': '{title} — Free Online Tool',
   },
   ru: {
     // Header
@@ -172,6 +184,18 @@ export const translations = {
     'tool.characterMap.desc': 'Просмотр и копирование Unicode-символов',
     'tool.emojiPicker': 'Эмодзи',
     'tool.emojiPicker.desc': 'Поиск и копирование эмодзи',
+
+    // Common tool UI
+    'ui.allTools': 'Все инструменты',
+    'ui.share': 'Поделиться:',
+    'ui.copy': 'Копировать',
+    'ui.copied': 'Скопировано!',
+    'ui.copyToClipboard': 'Копировать в буфер',
+    'ui.shareTwitter': 'Поделиться в X/Twitter',
+    'ui.shareReddit': 'Поделиться в Reddit',
+    'ui.copyLink': 'Скопировать ссылку',
+    'ui.tweetText': 'Смотрите {title} — бесплатный онлайн-инструмент!',
+    'ui.redditTitle': '{title} — Бесплатный онлайн-инструмент',
   },
 } as const;
 

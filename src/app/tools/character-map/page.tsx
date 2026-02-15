@@ -2,6 +2,23 @@
 
 import { useState } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
+
+const catNames: Record<string, Record<string, string>> = {
+  en: {
+    Arrows: 'Arrows', Math: 'Math', Currency: 'Currency', 'Stars & Shapes': 'Stars & Shapes',
+    'Legal & Marks': 'Legal & Marks', 'Music & Misc': 'Music & Misc', Weather: 'Weather', Punctuation: 'Punctuation',
+  },
+  ru: {
+    Arrows: 'Стрелки', Math: 'Математика', Currency: 'Валюты', 'Stars & Shapes': 'Звёзды и фигуры',
+    'Legal & Marks': 'Юридические и знаки', 'Music & Misc': 'Музыка и разное', Weather: 'Погода', Punctuation: 'Пунктуация',
+  },
+};
+
+const uiTexts = {
+  en: { copied: 'Copied' },
+  ru: { copied: 'Скопировано' },
+};
 
 const SYMBOLS: { cat: string; chars: string[] }[] = [
   { cat: 'Arrows', chars: ['←','→','↑','↓','↔','↕','⇐','⇒','⇑','⇓','⇔','➜','➤','▶','◀','▲','▼'] },
@@ -15,6 +32,7 @@ const SYMBOLS: { cat: string; chars: string[] }[] = [
 ];
 
 export default function CharacterMapPage() {
+  const { locale } = useLanguage();
   const [copied, setCopied] = useState('');
 
   const copy = (char: string) => {
@@ -25,11 +43,11 @@ export default function CharacterMapPage() {
 
   return (
     <ToolLayout title="Character Map" description="Browse and copy special characters, symbols, arrows, and more.">
-      {copied && <div className="fixed top-20 right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm shadow-lg z-50 animate-fade-in">Copied: {copied}</div>}
+      {copied && <div className="fixed top-20 right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm shadow-lg z-50 animate-fade-in">{uiTexts[locale].copied}: {copied}</div>}
       <div className="space-y-8">
         {SYMBOLS.map((group) => (
           <div key={group.cat}>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">{group.cat}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">{catNames[locale][group.cat] || group.cat}</h3>
             <div className="flex flex-wrap gap-2">
               {group.chars.map((ch) => (
                 <button key={ch} onClick={() => copy(ch)} className="w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-xl hover:bg-primary-50 hover:border-primary-300 transition-all hover:scale-110 active:scale-95">{ch}</button>

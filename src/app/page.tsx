@@ -25,6 +25,7 @@ import {
 import { ToolCard } from '@/components/ToolCard';
 import { useLanguage } from '@/components/LanguageProvider';
 import type { TranslationKey } from '@/lib/translations';
+import { getToolI18n } from '@/lib/toolTranslations';
 import type { LucideIcon } from 'lucide-react';
 
 interface ToolDef {
@@ -242,8 +243,15 @@ const categories: CategoryDef[] = [
 const totalTools = categories.reduce((a, c) => a + c.tools.length, 0);
 
 export default function HomePage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [query, setQuery] = useState('');
+
+  /** Get translated title/desc for a tool based on its href */
+  const tt = (tool: ToolDef) => {
+    const slug = tool.href.replace('/tools/', '');
+    const i18n = getToolI18n(slug, locale);
+    return { title: i18n.title || tool.title, desc: i18n.desc || tool.description };
+  };
 
   const filtered = useMemo(() => {
     if (!query.trim()) return categories;
@@ -251,14 +259,19 @@ export default function HomePage() {
     return categories
       .map((cat) => ({
         ...cat,
-        tools: cat.tools.filter(
-          (tool) =>
+        tools: cat.tools.filter((tool) => {
+          const { title, desc } = tt(tool);
+          return (
+            title.toLowerCase().includes(q) ||
+            desc.toLowerCase().includes(q) ||
             tool.title.toLowerCase().includes(q) ||
-            tool.description.toLowerCase().includes(q),
-        ),
+            tool.description.toLowerCase().includes(q)
+          );
+        }),
       }))
       .filter((cat) => cat.tools.length > 0);
-  }, [query]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, locale]);
 
   const matchCount = filtered.reduce((a, c) => a + c.tools.length, 0);
 
@@ -335,9 +348,19 @@ export default function HomePage() {
             <p className="text-gray-500 -mt-4 mb-6">{t(cat.descKey)}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {cat.tools.map((tool) => (
-              <ToolCard key={tool.href} {...tool} />
-            ))}
+            {cat.tools.map((tool) => {
+              const { title, desc } = tt(tool);
+              return (
+                <ToolCard
+                  key={tool.href}
+                  title={title}
+                  description={desc}
+                  href={tool.href}
+                  icon={tool.icon}
+                  badge={tool.badge}
+                />
+              );
+            })}
           </div>
         </section>
       ))}

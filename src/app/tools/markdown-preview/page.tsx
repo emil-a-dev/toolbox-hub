@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
+import { useLanguage } from '@/components/LanguageProvider';
 
 function parseMarkdown(md: string): string {
   let html = md
@@ -38,7 +39,23 @@ function parseMarkdown(md: string): string {
   return `<div class="prose"><p class="my-3">${html}</p></div>`;
 }
 
+const texts = {
+  en: {
+    markdown: 'Markdown',
+    preview: 'Preview',
+    placeholder: 'Write your Markdown here...',
+  },
+  ru: {
+    markdown: 'Редактор',
+    preview: 'Предпросмотр',
+    placeholder: 'Пишите Markdown здесь...',
+  },
+};
+
 export default function MarkdownPreviewPage() {
+  const { locale } = useLanguage();
+  const tx = texts[locale];
+
   const [md, setMd] = useState(`# Hello World
 
 This is a **Markdown** preview tool.
@@ -69,16 +86,16 @@ console.log(greeting);
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Markdown</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.markdown}</label>
           <textarea
             value={md}
             onChange={(e) => setMd(e.target.value)}
             className="tool-textarea !min-h-[400px]"
-            placeholder="Write your Markdown here..."
+            placeholder={tx.placeholder}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Preview</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{tx.preview}</label>
           <div
             className="rounded-xl border border-gray-200 bg-white p-6 min-h-[400px] overflow-auto"
             dangerouslySetInnerHTML={{ __html: parseMarkdown(md) }}
