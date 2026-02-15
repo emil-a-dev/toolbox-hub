@@ -4,8 +4,9 @@ import { useState, useRef } from 'react';
 import { ToolLayout } from '@/components/ToolLayout';
 import {
   Presentation, Download, Plus, Trash2, ChevronLeft, ChevronRight,
-  Edit3, Eye, Palette, FileText, Sparkles, Layout,
+  Edit3, Eye, Palette, FileText, Sparkles, Layout, Loader2, Search,
 } from 'lucide-react';
+import { useLanguage } from '@/components/LanguageProvider';
 
 /* ───────── templates ───────── */
 interface Template {
@@ -79,150 +80,209 @@ interface Slide {
   author?: string;
 }
 
-function generatePresentation(topic: string, slideCount: number): Slide[] {
-  const t = topic.trim();
+interface WikiContent {
+  title: string;
+  lang: string;
+  intro: string;
+  sections: { title: string; content: string }[];
+}
+
+function isCyrillic(text: string): boolean {
+  return /[а-яА-ЯёЁ]/.test(text);
+}
+
+function truncateText(text: string, maxLen: number): string {
+  if (text.length <= maxLen) return text;
+  const cut = text.lastIndexOf('. ', maxLen);
+  return cut > maxLen * 0.3 ? text.substring(0, cut + 1) : text.substring(0, maxLen).trim() + '…';
+}
+
+const SKIP_SECTIONS = new Set([
+  'см. также', 'see also', 'примечания', 'references', 'ссылки',
+  'external links', 'литература', 'bibliography', 'further reading',
+  'комментарии', 'notes', 'sources', 'источники', 'галерея', 'gallery',
+  'навигация', 'категория',
+]);
+
+async function fetchWikipediaContent(topic: string): Promise<WikiContent | null> {
+  const isRu = isCyrillic(topic);
+  const langs = isRu ? ['ru', 'en'] : ['en', 'ru'];
+
+  for (const lang of langs) {
+    try {
+      const searchUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=1&format=json&origin=*`;
+      const searchRes = await fetch(searchUrl, { signal: AbortSignal.timeout(8000) });
+      const searchData = await searchRes.json();
+      if (!searchData.query?.search?.length) continue;
+
+      const pageTitle = searchData.query.search[0].title;
+      const contentUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=extracts&explaintext=true&exlimit=1&format=json&origin=*`;
+      const contentRes = await fetch(contentUrl, { signal: AbortSignal.timeout(8000) });
+      const contentData = await contentRes.json();
+
+      const pages = contentData.query?.pages;
+      if (!pages) continue;
+      const page = Object.values(pages)[0] as any;
+      if (!page?.extract || page.extract.length < 200) continue;
+
+      const fullText: string = page.extract;
+      const sectionRegex = /^==\s*([^=]+?)\s*==$/gm;
+      const matches: { title: string; index: number; headerLen: number }[] = [];
+      let m;
+      while ((m = sectionRegex.exec(fullText)) !== null) {
+        matches.push({ title: m[1].trim(), index: m.index, headerLen: m[0].length });
+      }
+
+      let intro = '';
+      const sections: { title: string; content: string }[] = [];
+
+      if (matches.length > 0) {
+        intro = fullText.substring(0, matches[0].index).trim();
+        for (let i = 0; i < matches.length; i++) {
+          const start = matches[i].index + matches[i].headerLen;
+          const end = i + 1 < matches.length ? matches[i + 1].index : fullText.length;
+          let content = fullText.substring(start, end).trim();
+          content = content.replace(/^={3,}\s*.+?\s*={3,}$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
+          if (content.length > 40) {
+            sections.push({ title: matches[i].title, content });
+          }
+        }
+      } else {
+        intro = fullText;
+      }
+
+      return { title: pageTitle, lang, intro, sections };
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+function buildSlidesFromWiki(wiki: WikiContent, topic: string, count: number, isRu: boolean): Slide[] {
   const slides: Slide[] = [];
   let id = 0;
+  const dateStr = new Date().toLocaleDateString(isRu ? 'ru-RU' : 'en-US');
 
-  // Title slide
   slides.push({
-    id: id++,
-    type: 'title',
-    title: t,
-    body: `Comprehensive overview and key insights\nPrepared ${new Date().toLocaleDateString()}`,
+    id: id++, type: 'title', title: topic,
+    body: `${wiki.title !== topic ? wiki.title + '\n' : ''}${isRu ? 'Подготовлено' : 'Prepared'} ${dateStr}`,
   });
 
-  // Introduction
-  slides.push({
-    id: id++,
-    type: 'content',
-    title: `Introduction to ${t}`,
-    body: `This presentation explores the key aspects of "${t}". We will cover fundamental concepts, current trends, important data points, and actionable conclusions. The goal is to provide a clear and structured understanding of this topic.`,
+  if (wiki.intro.length > 50) {
+    slides.push({
+      id: id++, type: 'content',
+      title: isRu ? 'Введение' : 'Introduction',
+      body: truncateText(wiki.intro, 600),
+    });
+  }
+
+  const usable = wiki.sections.filter(s => !SKIP_SECTIONS.has(s.title.toLowerCase()));
+
+  if (usable.length > 2) {
+    slides.push({
+      id: id++, type: 'bullets',
+      title: isRu ? 'Содержание' : 'Agenda',
+      body: '', bullets: usable.slice(0, 8).map(s => s.title),
+    });
+  }
+
+  const reserved = 2 + (usable.length > 2 ? 1 : 0) + 1;
+  const budget = Math.max(count - reserved, 2);
+  const toUse = usable.slice(0, budget);
+
+  toUse.forEach((sec, idx) => {
+    const sentences = sec.content.split(/(?<=[.!?»"])\s+/).filter(s => s.trim().length > 20);
+
+    if (sentences.length >= 4 && idx % 3 === 0) {
+      slides.push({
+        id: id++, type: 'bullets', title: sec.title, body: '',
+        bullets: sentences.slice(0, 6).map(s => truncateText(s, 150)),
+      });
+    } else if (sentences.length >= 6 && idx % 3 === 2) {
+      const half = Math.ceil(Math.min(sentences.length, 8) / 2);
+      slides.push({
+        id: id++, type: 'two-column', title: sec.title, body: '',
+        leftCol: sentences.slice(0, half).map(s => truncateText(s, 150)).join('\n\n'),
+        rightCol: sentences.slice(half, half * 2).map(s => truncateText(s, 150)).join('\n\n'),
+      });
+    } else {
+      slides.push({
+        id: id++, type: 'content', title: sec.title,
+        body: truncateText(sec.content, 600),
+      });
+    }
   });
 
-  // Overview bullets
   slides.push({
-    id: id++,
-    type: 'bullets',
-    title: 'Agenda',
-    body: '',
-    bullets: [
-      'Background & Context',
-      'Key Concepts & Definitions',
-      'Current State & Trends',
-      'Data & Analysis',
-      'Challenges & Opportunities',
-      'Conclusions & Next Steps',
-    ],
+    id: id++, type: 'end',
+    title: isRu ? 'Спасибо за внимание!' : 'Thank You!',
+    body: `${isRu ? 'Вопросы и обсуждение' : 'Questions & Discussion'}\n\n${topic}\n\n${isRu ? 'Создано с помощью' : 'Generated by'} ToolBox Hub`,
   });
 
-  // Background
-  slides.push({
-    id: id++,
-    type: 'content',
-    title: 'Background & Context',
-    body: `Understanding the background of "${t}" is essential for grasping its full significance. This field has evolved significantly over recent years, driven by technological innovation, changing market dynamics, and growing interest from both professionals and the general public.`,
-  });
-
-  // Key concepts - two column
-  slides.push({
-    id: id++,
-    type: 'two-column',
-    title: 'Key Concepts',
-    body: '',
-    leftCol: `Core Principles:\n\n• Foundational theory and frameworks\n• Essential terminology\n• Historical development\n• Academic perspective`,
-    rightCol: `Practical Applications:\n\n• Real-world use cases\n• Industry implementations\n• Best practices\n• Common methodologies`,
-  });
-
-  // Statistics
-  slides.push({
-    id: id++,
-    type: 'bullets',
-    title: 'Key Data Points',
-    body: `Important metrics and statistics related to "${t}":`,
-    bullets: [
-      'Growing market demand — increasing interest year-over-year',
-      'Adoption rate accelerating across multiple industries',
-      'Significant ROI documented in case studies',
-      'Expanding ecosystem of tools and resources',
-      'Rising investment and research funding',
-    ],
-  });
-
-  // Quote
-  slides.push({
-    id: id++,
-    type: 'quote',
-    title: 'Expert Perspective',
-    body: '',
-    quote: `"The future belongs to those who understand and embrace the transformative potential of ${t.toLowerCase()}."`,
-    author: 'Industry Expert',
-  });
-
-  // Challenges
-  slides.push({
-    id: id++,
-    type: 'two-column',
-    title: 'Challenges & Solutions',
-    body: '',
-    leftCol: `Challenges:\n\n• Learning curve for newcomers\n• Resource constraints\n• Integration complexity\n• Rapid pace of change`,
-    rightCol: `Solutions:\n\n• Structured education programs\n• Scalable approaches\n• Modular architectures\n• Continuous learning culture`,
-  });
-
-  // Trends
-  slides.push({
-    id: id++,
-    type: 'bullets',
-    title: 'Current Trends',
-    body: `What is shaping the landscape of "${t}" right now:`,
-    bullets: [
-      'AI and automation integration',
-      'Data-driven decision making',
-      'Sustainability and ethical considerations',
-      'Globalization and remote collaboration',
-      'Open-source community contributions',
-    ],
-  });
-
-  // Best practices
-  slides.push({
-    id: id++,
-    type: 'content',
-    title: 'Best Practices',
-    body: `To achieve the best results with "${t}", consider these proven approaches: Start with a clear strategy and measurable goals. Invest in continuous education and skill development. Leverage data and analytics for informed decision-making. Foster collaboration between teams and stakeholders. Stay updated with the latest developments and adapt accordingly.`,
-  });
-
-  // Conclusions
-  slides.push({
-    id: id++,
-    type: 'bullets',
-    title: 'Conclusions',
-    body: 'Key takeaways from this presentation:',
-    bullets: [
-      `${t} is a significant and evolving field`,
-      'Understanding the fundamentals is crucial for success',
-      'Data-driven approaches yield the best results',
-      'Continuous learning and adaptation are essential',
-      'Opportunities outweigh challenges for prepared organizations',
-    ],
-  });
-
-  // End slide
-  slides.push({
-    id: id++,
-    type: 'end',
-    title: 'Thank You!',
-    body: `Questions & Discussion\n\n${t}\n\nPresentation generated by ToolBox Hub`,
-  });
-
-  // Trim or pad to desired count
-  if (slides.length > slideCount) {
-    // Keep title + end, trim middle
-    const core = slides.slice(0, slideCount - 1);
+  if (slides.length > count) {
+    const core = slides.slice(0, count - 1);
     core.push(slides[slides.length - 1]);
     return core;
   }
+  return slides;
+}
 
+function generateFallback(topic: string, count: number, isRu: boolean): Slide[] {
+  const t = topic.trim();
+  const slides: Slide[] = [];
+  let id = 0;
+  const dateStr = new Date().toLocaleDateString(isRu ? 'ru-RU' : 'en-US');
+
+  slides.push({ id: id++, type: 'title', title: t,
+    body: `${isRu ? 'Обзор и ключевые аспекты' : 'Overview and key insights'}\n${isRu ? 'Подготовлено' : 'Prepared'} ${dateStr}` });
+
+  slides.push({ id: id++, type: 'content',
+    title: isRu ? `Введение: ${t}` : `Introduction to ${t}`,
+    body: isRu
+      ? `Данная презентация посвящена ключевым аспектам темы «${t}». Мы рассмотрим основные понятия, текущее состояние, тенденции развития и практические выводы. Цель — сформировать структурированное понимание данной темы.`
+      : `This presentation explores the key aspects of "${t}". We will cover fundamental concepts, current trends, important data points, and actionable conclusions.` });
+
+  slides.push({ id: id++, type: 'bullets',
+    title: isRu ? 'Содержание' : 'Agenda', body: '',
+    bullets: isRu
+      ? ['Контекст и предпосылки', 'Основные понятия', 'Текущее состояние', 'Данные и анализ', 'Вызовы и возможности', 'Выводы']
+      : ['Background & Context', 'Key Concepts', 'Current State', 'Data & Analysis', 'Challenges & Opportunities', 'Conclusions'] });
+
+  slides.push({ id: id++, type: 'content',
+    title: isRu ? 'Контекст и предпосылки' : 'Background & Context',
+    body: isRu
+      ? `Понимание предпосылок темы «${t}» необходимо для оценки её значимости. Эта область существенно изменилась в последние годы благодаря технологическим инновациям, изменению рыночной динамики и растущему интересу со стороны профессионалов и широкой общественности.`
+      : `Understanding the background of "${t}" is essential for grasping its full significance. This field has evolved significantly over recent years, driven by technological innovation, changing market dynamics, and growing interest.` });
+
+  slides.push({ id: id++, type: 'two-column',
+    title: isRu ? 'Основные понятия' : 'Key Concepts', body: '',
+    leftCol: isRu ? 'Теоретические основы:\n\n• Фундаментальная теория\n• Основная терминология\n• Историческое развитие\n• Академический взгляд' : 'Core Principles:\n\n• Foundational theory\n• Essential terminology\n• Historical development\n• Academic perspective',
+    rightCol: isRu ? 'Практическое применение:\n\n• Реальные примеры\n• Отраслевые решения\n• Лучшие практики\n• Распространённые методы' : 'Applications:\n\n• Real-world use cases\n• Industry implementations\n• Best practices\n• Common methodologies' });
+
+  slides.push({ id: id++, type: 'bullets',
+    title: isRu ? 'Ключевые тенденции' : 'Key Trends',
+    body: isRu ? `Что формирует ландшафт «${t}» сейчас:` : `Current trends in "${t}":`,
+    bullets: isRu
+      ? ['Интеграция ИИ и автоматизации', 'Принятие решений на основе данных', 'Устойчивое развитие и этика', 'Глобализация и удалённая работа', 'Открытое сообщество и сотрудничество']
+      : ['AI and automation integration', 'Data-driven decision making', 'Sustainability and ethics', 'Globalization and remote collaboration', 'Open-source community contributions'] });
+
+  slides.push({ id: id++, type: 'bullets',
+    title: isRu ? 'Выводы' : 'Conclusions',
+    body: isRu ? 'Ключевые выводы:' : 'Key takeaways:',
+    bullets: isRu
+      ? [`«${t}» — значимая и развивающаяся область`, 'Понимание основ — залог успеха', 'Подходы на основе данных дают лучшие результаты', 'Непрерывное обучение необходимо', 'Возможности превышают вызовы']
+      : [`${t} is a significant and evolving field`, 'Understanding fundamentals is crucial', 'Data-driven approaches yield best results', 'Continuous learning is essential', 'Opportunities outweigh challenges'] });
+
+  slides.push({ id: id++, type: 'end',
+    title: isRu ? 'Спасибо за внимание!' : 'Thank You!',
+    body: `${isRu ? 'Вопросы и обсуждение' : 'Questions & Discussion'}\n\n${t}\n\n${isRu ? 'Создано с помощью' : 'Generated by'} ToolBox Hub` });
+
+  if (slides.length > count) {
+    const core = slides.slice(0, count - 1);
+    core.push(slides[slides.length - 1]);
+    return core;
+  }
   return slides;
 }
 
@@ -340,16 +400,41 @@ export default function PresentationGeneratorPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [mode, setMode] = useState<'edit' | 'preview'>('preview');
   const [editingSlide, setEditingSlide] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState('');
   const printRef = useRef<HTMLDivElement>(null);
+  const { locale } = useLanguage();
+  const isRu = locale === 'ru';
 
   const template = TEMPLATES.find((t) => t.id === templateId) || TEMPLATES[0];
 
-  const handleGenerate = () => {
-    if (!topic.trim()) return;
-    const gen = generatePresentation(topic, slideCount);
-    setSlides(gen);
-    setCurrentSlide(0);
-    setMode('preview');
+  const handleGenerate = async () => {
+    if (!topic.trim() || loading) return;
+    setLoading(true);
+    setStatusMsg(isRu ? 'Поиск информации по теме…' : 'Searching for topic info…');
+    try {
+      const wiki = await fetchWikipediaContent(topic);
+      let gen: Slide[];
+      const ru = isCyrillic(topic) || isRu;
+      if (wiki) {
+        gen = buildSlidesFromWiki(wiki, topic, slideCount, ru);
+        setStatusMsg(isRu ? `Найдена статья: ${wiki.title} (${wiki.lang === 'ru' ? 'рус' : 'англ'}). Создано ${gen.length} слайдов.` : `Found: ${wiki.title} (${wiki.lang}). Created ${gen.length} slides.`);
+      } else {
+        gen = generateFallback(topic, slideCount, ru);
+        setStatusMsg(isRu ? 'Статья не найдена в Википедии. Создана базовая структура — отредактируйте содержимое.' : 'Wikipedia article not found. Generated basic structure — edit content as needed.');
+      }
+      setSlides(gen);
+      setCurrentSlide(0);
+      setMode('preview');
+    } catch {
+      setStatusMsg(isRu ? 'Ошибка при поиске. Создана базовая структура.' : 'Search error. Generated basic structure.');
+      const ru = isCyrillic(topic) || isRu;
+      setSlides(generateFallback(topic, slideCount, ru));
+      setCurrentSlide(0);
+      setMode('preview');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateSlide = (idx: number, field: keyof Slide, value: string) => {
@@ -473,19 +558,20 @@ body{background:#111}
       {/* ─── Setup ─── */}
       <div className="mb-8 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Presentation Topic</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{isRu ? 'Тема презентации' : 'Presentation Topic'}</label>
           <input
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. Artificial Intelligence in Education"
+            onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+            placeholder={isRu ? 'напр. Искусственный интеллект в образовании' : 'e.g. Artificial Intelligence in Education'}
             className="input w-full text-lg"
           />
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Number of Slides</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{isRu ? 'Количество слайдов' : 'Number of Slides'}</label>
             <input
               type="range"
               min={5}
@@ -494,11 +580,11 @@ body{background:#111}
               onChange={(e) => setSlideCount(Number(e.target.value))}
               className="w-full"
             />
-            <span className="text-sm text-gray-500">{slideCount} slides</span>
+            <span className="text-sm text-gray-500">{slideCount} {isRu ? 'слайдов' : 'slides'}</span>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Template</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{isRu ? 'Шаблон' : 'Template'}</label>
             <div className="grid grid-cols-4 gap-2">
               {TEMPLATES.map((tpl) => (
                 <button
@@ -523,12 +609,24 @@ body{background:#111}
 
         <button
           onClick={handleGenerate}
-          disabled={!topic.trim()}
+          disabled={!topic.trim() || loading}
           className="btn btn-primary w-full sm:w-auto flex items-center gap-2"
         >
-          <Sparkles size={18} />
-          Generate Presentation
+          {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
+          {loading
+            ? (isRu ? 'Поиск и генерация…' : 'Searching & generating…')
+            : (isRu ? 'Найти и создать презентацию' : 'Search & Generate Presentation')}
         </button>
+
+        {statusMsg && (
+          <div className={`mt-3 p-3 rounded-xl text-sm ${
+            statusMsg.includes('не найден') || statusMsg.includes('not found') || statusMsg.includes('Ошибка') || statusMsg.includes('error')
+              ? 'bg-amber-50 text-amber-800 border border-amber-200'
+              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+          }`}>
+            {statusMsg}
+          </div>
+        )}
       </div>
 
       {/* ─── Slides ─── */}
@@ -707,7 +805,7 @@ body{background:#111}
 
           {/* Keyboard hint */}
           <p className="text-xs text-gray-400 text-center">
-            Use ← → arrow keys to navigate slides. Edit mode lets you customize all content.
+            {isRu ? 'Используйте ← → для навигации. Режим редактирования позволяет изменить любой контент.' : 'Use ← → arrow keys to navigate slides. Edit mode lets you customize all content.'}
           </p>
         </div>
       )}
