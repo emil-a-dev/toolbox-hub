@@ -103,11 +103,42 @@ main {
 
 /* Mobile fixed bottom ad container */
 #mobile-ad-container {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 2147483646 !important;
   max-height: 100px;
+  min-height: 50px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Force all children of mobile ad container to fit */
+#mobile-ad-container > * {
+  position: static !important;
+  max-height: 100px !important;
+  max-width: 100% !important;
+  width: auto !important;
+  margin: 0 auto !important;
+}
+
+#mobile-ad-container iframe {
+  position: static !important;
+  max-height: 100px !important;
+  max-width: 100% !important;
+  display: block !important;
 }
 
 /* Add bottom padding on mobile so content isn't hidden behind the fixed ad */
@@ -127,11 +158,12 @@ main {
   gap: 16px;
 }
 
-/* Force any injected ad elements inside containers to behave */
-#mobile-ad-container iframe,
-#mobile-ad-container > div {
-  max-height: 100px !important;
-  width: 100% !important;
+/* Prevent any rogue fixed/absolute elements from covering content on mobile */
+@media (max-width: 1023px) {
+  body > div[style*="position: fixed"]:not(#mobile-ad-container):not(#__next),
+  body > iframe[style*="position: fixed"] {
+    display: none !important;
+  }
 }
 
 #desktop-ad-container iframe,

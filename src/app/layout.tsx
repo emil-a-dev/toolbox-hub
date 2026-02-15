@@ -95,23 +95,66 @@ l.parentNode.insertBefore(s, l);
           </div>
           <Footer />
         </LanguageProvider>
-        {/* Mobile fixed bottom ad — visible only on mobile */}
-        <div className="fixed bottom-0 left-0 right-0 z-[9999] lg:hidden bg-white/95 backdrop-blur-sm shadow-[0_-2px_10px_rgba(0,0,0,0.1)]" id="mobile-ad-container">
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(qjgk){
-var d = document,
-    s = d.createElement('script'),
-    l = d.scripts[d.scripts.length - 1];
-s.settings = qjgk || {};
-s.src = "//zany-aside.com/bLXBVcsBd.G-lJ0pY/WYcW/pe/m/9ZuLZrUJlGkjPtTiYK4iMVDzMT2qM/zqc/tpN/j/gdwgMUzqYH0/MXQc";
-s.async = true;
-s.referrerPolicy = 'no-referrer-when-downgrade';
-l.parentNode.insertBefore(s, l);
-})({})`
-            }}
-          />
-        </div>
+        {/* Mobile fixed bottom ad container */}
+        <div id="mobile-ad-container" className="lg:hidden"></div>
+        {/* Mobile ad loader + observer */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+  if(window.innerWidth >= 1024) return;
+  // Load HilltopAds mobile script
+  (function(qjgk){
+    var d = document, s = d.createElement('script'),
+        l = d.scripts[d.scripts.length - 1];
+    s.settings = qjgk || {};
+    s.src = "//zany-aside.com/bLXBVcsBd.G-lJ0pY/WYcW/pe/m/9ZuLZrUJlGkjPtTiYK4iMVDzMT2qM/zqc/tpN/j/gdwgMUzqYH0/MXQc";
+    s.async = true;
+    s.referrerPolicy = 'no-referrer-when-downgrade';
+    l.parentNode.insertBefore(s, l);
+  })({});
+  // Observe body for injected ad elements and force them into our fixed container
+  var container = document.getElementById('mobile-ad-container');
+  var captured = false;
+  function captureAd(el){
+    if(captured) return;
+    container.appendChild(el);
+    captured = true;
+  }
+  var observer = new MutationObserver(function(mutations){
+    mutations.forEach(function(m){
+      m.addedNodes.forEach(function(node){
+        if(node.nodeType !== 1) return;
+        // Capture iframes or divs injected with fixed/absolute positioning
+        var tag = node.tagName;
+        if(tag === 'IFRAME' || tag === 'DIV'){
+          var s = node.getAttribute('style') || '';
+          if(s.indexOf('fixed') !== -1 || s.indexOf('absolute') !== -1 || s.indexOf('z-index') !== -1){
+            setTimeout(function(){ captureAd(node); }, 50);
+          }
+        }
+      });
+    });
+  });
+  observer.observe(document.body, {childList: true});
+  // Also check every 2s for 30s in case ads load late
+  var checks = 0;
+  var interval = setInterval(function(){
+    if(++checks > 15){ clearInterval(interval); return; }
+    var els = document.body.children;
+    for(var i = 0; i < els.length; i++){
+      var el = els[i];
+      if(el.id === 'mobile-ad-container' || el.id === '__next' || el.tagName === 'SCRIPT' || el.tagName === 'LINK' || el.tagName === 'STYLE') continue;
+      var cs = window.getComputedStyle(el);
+      if(cs.position === 'fixed' || cs.position === 'absolute'){
+        captureAd(el);
+        clearInterval(interval);
+        break;
+      }
+    }
+  }, 2000);
+})()`
+          }}
+        />
         <Analytics />
       </body>
     </html>
