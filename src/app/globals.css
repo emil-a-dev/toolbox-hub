@@ -101,7 +101,7 @@ main {
   z-index: 10;
 }
 
-/* Mobile fixed bottom ad container */
+/* Mobile fixed bottom ad container — clean banner style */
 #mobile-ad-container {
   position: fixed !important;
   bottom: 0 !important;
@@ -109,42 +109,48 @@ main {
   right: 0 !important;
   width: 100% !important;
   z-index: 2147483646 !important;
-  max-height: 100px;
-  min-height: 50px;
+  height: 70px;
+  max-height: 70px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1), 0 -1px 4px rgba(0, 0, 0, 0.05);
+  padding: 6px 12px;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   will-change: transform;
 }
 
-/* Force all children of mobile ad container to fit */
+/* Force all children of mobile ad container to fit neatly */
 #mobile-ad-container > * {
   position: static !important;
-  max-height: 100px !important;
+  max-height: 60px !important;
   max-width: 100% !important;
   width: auto !important;
   margin: 0 auto !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
 }
 
 #mobile-ad-container iframe {
   position: static !important;
-  max-height: 100px !important;
+  height: 60px !important;
+  max-height: 60px !important;
   max-width: 100% !important;
   display: block !important;
+  border-radius: 10px !important;
+  border: none !important;
 }
 
 /* Add bottom padding on mobile so content isn't hidden behind the fixed ad */
 @media (max-width: 1023px) {
   body {
-    padding-bottom: 110px !important;
+    padding-bottom: 80px !important;
   }
 }
 
