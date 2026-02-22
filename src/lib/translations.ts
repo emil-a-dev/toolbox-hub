@@ -98,6 +98,19 @@ export const translations = {
     'ui.copyLink': 'Copy link',
     'ui.tweetText': 'Check out {title} — free online tool!',
     'ui.redditTitle': '{title} — Free Online Tool',
+
+    // Subscription
+    'subscription.title': 'Pro+ Subscription',
+    'subscription.active': '✅ Active',
+    'subscription.inactive': '❌ Inactive',
+    'subscription.expiresOn': 'Active until',
+    'subscription.noSubscription': 'You do not have an active Pro+ subscription.',
+    'subscription.activateLabel': 'Enter activation key',
+    'subscription.activateButton': 'Activate',
+    'subscription.activateSuccess': 'Subscription activated!',
+    'subscription.activateError': 'Invalid activation key.',
+    'subscription.daysLeft': '{days} days remaining',
+    'subscription.expired': 'Your subscription has expired.',
   },
   ru: {
     // Header
@@ -196,6 +209,19 @@ export const translations = {
     'ui.copyLink': 'Скопировать ссылку',
     'ui.tweetText': 'Смотрите {title} — бесплатный онлайн-инструмент!',
     'ui.redditTitle': '{title} — Бесплатный онлайн-инструмент',
+
+    // Subscription
+    'subscription.title': 'Подписка Pro+',
+    'subscription.active': '✅ Активна',
+    'subscription.inactive': '❌ Неактивна',
+    'subscription.expiresOn': 'Активна до',
+    'subscription.noSubscription': 'У вас нет активной подписки Pro+.',
+    'subscription.activateLabel': 'Введите ключ активации',
+    'subscription.activateButton': 'Активировать',
+    'subscription.activateSuccess': 'Подписка активирована!',
+    'subscription.activateError': 'Неверный ключ активации.',
+    'subscription.daysLeft': 'Осталось {days} дн.',
+    'subscription.expired': 'Срок вашей подписки истёк.',
   },
 } as const;
 

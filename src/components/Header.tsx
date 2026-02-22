@@ -1,13 +1,34 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { Wrench, Menu, X, Github, Languages } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Wrench, Menu, X, Github, Languages, Crown } from 'lucide-react';
 import { useLanguage } from '@/components/LanguageProvider';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { locale, setLocale, t } = useLanguage();
+  const [proActive, setProActive] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('pro_subscription_expiry');
+    if (stored) {
+      const date = new Date(stored);
+      setProActive(!isNaN(date.getTime()) && date > new Date());
+    }
+
+    function onStorage(e: StorageEvent) {
+      if (e.key !== 'pro_subscription_expiry') return;
+      if (e.newValue) {
+        const date = new Date(e.newValue);
+        setProActive(!isNaN(date.getTime()) && date > new Date());
+      } else {
+        setProActive(false);
+      }
+    }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const toggleLocale = () => setLocale(locale === 'en' ? 'ru' : 'en');
 
@@ -48,6 +69,18 @@ export function Header() {
           <a href="https://github.com/emil-a-dev" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary-600 transition-colors">
             <Github size={18} />
           </a>
+          <Link
+            href="/subscription"
+            className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full transition-colors ${
+              proActive
+                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }`}
+            title={t('subscription.title')}
+          >
+            <Crown size={13} />
+            Pro+
+          </Link>
         </nav>
 
         {/* Mobile menu toggle */}
@@ -85,6 +118,18 @@ export function Header() {
           <a href="https://github.com/emil-a-dev" target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary-600">
             <Github size={16} /> GitHub
           </a>
+          <Link
+            href="/subscription"
+            onClick={() => setIsOpen(false)}
+            className={`flex items-center gap-1.5 text-sm font-semibold w-fit px-3 py-1.5 rounded-full transition-colors ${
+              proActive
+                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+            }`}
+          >
+            <Crown size={14} />
+            Pro+
+          </Link>
         </nav>
       )}
     </header>
